@@ -19,6 +19,12 @@
  */
 
 @theme inline {
+  --color-web-red: var(--web-red);
+  --color-web-red-bright: var(--web-red-bright);
+  --color-web-blue: var(--web-blue);
+  --color-web-ink: var(--web-ink);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
