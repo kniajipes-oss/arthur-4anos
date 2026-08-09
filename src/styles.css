@@ -175,10 +175,10 @@
 @keyframes hint-pulse {
   0%,
   100% {
-    opacity: 0.32;
+    opacity: 0.45;
   }
   50% {
-    opacity: 0.75;
+    opacity: 0.8;
   }
 }
 
@@ -187,5 +187,5 @@
 }
 
 @utility animate-hint-pulse {
-  animation: hint-pulse 2.6s ease-in-out infinite;
+  animation: hint-pulse 3s ease-in-out infinite;
 }
