@@ -133,8 +133,8 @@ export function WebCanvas({ running }: { running: boolean }) {
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
-            const a = pts[s][r];
-            const b = pts[(s + 1) % SPOKES][r];
+            const a = pts[s]![r]!;
+            const b = pts[(s + 1) % SPOKES]![r]!;
             const mx = (a[0] + b[0]) / 2;
             const my = (a[1] + b[1]) / 2;
             const qx = mx + (cx - mx) * 0.12;
@@ -149,7 +149,7 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.globalAlpha = 0.9 * webFadeK * clamp01((wp - 0.5) / 0.4);
         ctx.fillStyle = BLUE;
         for (let s = 0; s < SPOKES; s += 5) {
-          const p = pts[s][2];
+          const p = pts[s]![2]!;
           ctx.beginPath();
           ctx.arc(p[0], p[1], 1.6, 0, Math.PI * 2);
           ctx.fill();
@@ -194,7 +194,7 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.stroke();
 
         // 8 angular legs
-        const legs = [
+        const legs: Array<[number, number, number]> = [
           [-0.5, 1.1, -1.5],
           [-0.15, 1.35, -0.8],
           [0.2, 1.35, -0.1],
