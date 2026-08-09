@@ -60,20 +60,20 @@ function Index() {
       )}
 
       {showText && (
-        <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-8 text-center">
+        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-10 text-center">
           <h1
-            className="animate-reveal-up font-display text-[clamp(2.75rem,17vw,5rem)] leading-[0.92] tracking-[0.02em] text-foreground"
+            className="animate-reveal-up font-display text-[clamp(2rem,11vw,3.5rem)] leading-[0.95] tracking-[0.02em] text-foreground"
             style={{ textShadow: "0 0 34px color-mix(in oklab, var(--web-red) 45%, transparent)" }}
           >
             ARTHUR
           </h1>
           <span
-            className="animate-reveal-up mt-5 h-px w-24 bg-web-red"
-            style={{ animationDelay: "180ms" }}
+            className="animate-reveal-up mt-4 h-px w-20 bg-web-red"
+            style={{ animationDelay: "140ms" }}
           />
           <p
-            className="animate-reveal-up mt-5 font-display text-[clamp(1.5rem,9vw,2.5rem)] tracking-[0.16em] text-web-red-bright"
-            style={{ animationDelay: "300ms" }}
+            className="animate-reveal-up mt-4 font-display text-[clamp(1.15rem,6vw,1.9rem)] tracking-[0.16em] text-web-red-bright"
+            style={{ animationDelay: "240ms" }}
           >
             FAZ 4!
           </p>
