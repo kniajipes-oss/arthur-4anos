@@ -53,8 +53,8 @@ function Index() {
       {!started && (
         <div className="absolute bottom-24 flex flex-col items-center gap-4">
           <span className="h-10 w-px bg-gradient-to-b from-transparent to-web-red/70" />
-          <span className="animate-hint-pulse text-[0.62rem] font-light tracking-[0.55em] text-foreground/70 uppercase">
-            Toque para entrar
+          <span className="animate-hint-pulse text-[0.62rem] font-light tracking-[0.42em] text-foreground/70 uppercase">
+            Toque para lançar a teia
           </span>
         </div>
       )}
