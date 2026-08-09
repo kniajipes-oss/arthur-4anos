@@ -63,8 +63,15 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.13 0.012 265);
+  --foreground: oklch(0.98 0 0);
+  --web-red: oklch(0.55 0.22 27);
+  --web-red-bright: oklch(0.65 0.25 27);
+  --web-blue: oklch(0.35 0.11 255);
+  --web-ink: oklch(0.09 0.008 265);
+  --shadow-glow: 0 0 40px color-mix(in oklab, var(--web-red) 35%, transparent);
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
