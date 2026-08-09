@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 
 const T = {
-  hold: 300,
-  dropEnd: 950,
-  webEnd: 1750,
-  spiderIn: 1750,
+  hold: 180,
+  dropEnd: 760,
+  webEnd: 1760,
+  spiderIn: 1700,
   spiderHold: 2350,
-  webFade: 2450,
-  end: 3200,
+  webFade: 2380,
+  end: 3100,
 };
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -69,7 +69,7 @@ export function WebCanvas({ running }: { running: boolean }) {
         return;
       }
 
-      const webFadeK = 1 - clamp01((t - T.webFade) / 600) * 0.72;
+      const webFadeK = 1 - clamp01((t - T.webFade) / 520) * 0.78;
 
       // 1. Descending thread
       if (t > T.hold) {
@@ -106,8 +106,11 @@ export function WebCanvas({ running }: { running: boolean }) {
         const pts: Array<Array<[number, number]>> = [];
         for (let s = 0; s < SPOKES; s++) {
           const a = (s / SPOKES) * Math.PI * 2 - Math.PI / 2;
-          const stagger = clamp01((wp - (s % 4) * 0.06) / 0.55);
-          const len = R * easeOut(stagger);
+          // threads are "shot" outward: fast, staggered, slight overshoot snap
+          const delay = (s % 3) * 0.045 + Math.floor(s / 3) * 0.012;
+          const stagger = clamp01((wp - delay) / 0.3);
+          const shot = easeOut(stagger);
+          const len = R * shot;
           const ring: Array<[number, number]> = [];
           for (let r = 1; r <= RINGS; r++) {
             const rr = R * (r / RINGS);
@@ -115,17 +118,30 @@ export function WebCanvas({ running }: { running: boolean }) {
           }
           pts.push(ring);
 
-          ctx.globalAlpha = 0.7 * webFadeK;
+          if (stagger <= 0) continue;
+          ctx.globalAlpha = 0.72 * webFadeK;
           ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(255,255,255,0.45)";
           ctx.lineWidth = 0.7;
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.lineTo(cx + Math.cos(a) * len, cy + Math.sin(a) * len);
           ctx.stroke();
+
+          // travelling head of the thread
+          if (stagger < 1) {
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = RED;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = RED;
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(a) * len, cy + Math.sin(a) * len, 1.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
         }
 
         for (let r = 0; r < RINGS; r++) {
-          const rp = clamp01((wp - 0.3 - r * 0.13) / 0.4);
+          const rp = clamp01((wp - 0.22 - r * 0.07) / 0.24);
           if (rp <= 0) continue;
           const count = Math.floor(SPOKES * easeInOut(rp));
           ctx.globalAlpha = (r === RINGS - 1 ? 0.35 : 0.55) * webFadeK;
@@ -159,59 +175,66 @@ export function WebCanvas({ running }: { running: boolean }) {
 
       // 3. Geometric spider
       if (t > T.spiderIn) {
-        const inP = easeOut(clamp01((t - T.spiderIn) / 380));
-        const outP = clamp01((t - T.spiderHold) / 420);
+        const inP = easeOut(clamp01((t - T.spiderIn) / 320));
+        const outP = clamp01((t - T.spiderHold) / 380);
         const alpha = inP * (1 - outP);
         const scale = (0.86 + 0.14 * inP) * (1 + outP * 0.5);
         const u = R * 0.2 * scale;
+        const breathe = 1 + Math.sin(t / 260) * 0.02;
 
         ctx.save();
         ctx.translate(cx, cy);
+        ctx.scale(breathe, 1 / breathe);
         ctx.globalAlpha = alpha;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
-        ctx.shadowBlur = 18 * alpha;
+        ctx.shadowBlur = 16 * alpha;
         ctx.shadowColor = RED;
 
-        // body: two stacked diamonds
-        ctx.strokeStyle = "rgba(255,255,255,0.92)";
-        ctx.lineWidth = 1.2;
+        // organic body: tapered abdomen + small cephalothorax
+        ctx.strokeStyle = "rgba(255,255,255,0.9)";
+        ctx.lineWidth = 1.1;
         ctx.beginPath();
-        ctx.moveTo(0, -u * 0.95);
-        ctx.lineTo(u * 0.4, 0);
-        ctx.lineTo(0, u * 1.35);
-        ctx.lineTo(-u * 0.4, 0);
-        ctx.closePath();
+        ctx.ellipse(0, u * 0.55, u * 0.42, u * 0.78, 0, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.strokeStyle = RED;
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(0, -u * 1.5);
-        ctx.lineTo(u * 0.26, -u * 1.05);
-        ctx.lineTo(0, -u * 0.7);
-        ctx.lineTo(-u * 0.26, -u * 1.05);
-        ctx.closePath();
+        ctx.ellipse(0, -u * 0.55, u * 0.3, u * 0.42, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 8 angular legs
-        const legs: Array<[number, number, number]> = [
-          [-0.5, 1.1, -1.5],
-          [-0.15, 1.35, -0.8],
-          [0.2, 1.35, -0.1],
-          [0.55, 1.15, 0.6],
+        // 8 curved, tapering legs: knee up-and-out, foot far out and low
+        // [anchorY, kneeX, kneeY, footX, footY]
+        const legs: Array<[number, number, number, number, number]> = [
+          [-0.5, 1.35, -1.9, 2.5, -0.6],
+          [-0.25, 1.6, -1.35, 3.05, 0.35],
+          [0.05, 1.6, -0.7, 3.0, 1.35],
+          [0.35, 1.35, -0.1, 2.4, 2.2],
         ];
-        ctx.strokeStyle = "rgba(255,255,255,0.8)";
-        ctx.lineWidth = 1;
         for (const side of [-1, 1]) {
-          for (const [oy, reach, drop] of legs) {
-            const kneeX = side * u * reach * 1.05;
-            const kneeY = u * oy - u * 1.15;
+          legs.forEach(([ay, kx, ky, fx, fy], i) => {
+            const sway = Math.sin(t / 320 + i * 0.8 + (side > 0 ? 0 : 1.5)) * u * 0.06;
+            const ax = side * u * 0.22;
+            const ay0 = u * ay;
+            const kX = side * u * kx;
+            const kY = u * ky + sway;
+            const fX = side * u * fx;
+            const fY = u * fy + sway;
+            ctx.strokeStyle = i === 1 ? RED_DIM : "rgba(255,255,255,0.78)";
+            // femur: arcs upward from body to the knee
+            ctx.lineWidth = 1.15;
             ctx.beginPath();
-            ctx.moveTo(side * u * 0.32, u * oy);
-            ctx.lineTo(kneeX, kneeY);
-            ctx.lineTo(side * u * reach * 1.75, kneeY + u * (1.4 + drop * 0.4));
+            ctx.moveTo(ax, ay0);
+            ctx.quadraticCurveTo(side * u * kx * 0.5, u * ay - u * 0.9 + sway, kX, kY);
             ctx.stroke();
-          }
+            // tibia: sweeps down and out to the tip
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(kX, kY);
+            ctx.quadraticCurveTo(side * u * (kx + (fx - kx) * 0.75), kY + u * 0.15, fX, fY);
+            ctx.stroke();
+          });
         }
         ctx.restore();
         ctx.globalAlpha = 1;
