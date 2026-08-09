@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 
 const T = {
-  hold: 180,
-  dropEnd: 760,
-  webEnd: 1760,
-  spiderIn: 1700,
-  spiderHold: 2350,
-  webFade: 2380,
-  end: 3100,
+  hold: 30,
+  dropEnd: 430,
+  webEnd: 1220,
+  spiderIn: 1150,
+  spiderHold: 1620,
+  webFade: 1660,
+  end: 2600,
 };
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
