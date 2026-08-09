@@ -182,10 +182,26 @@
   }
 }
 
+@keyframes settle-in {
+  0% {
+    transform: translateY(-50%) scale(1.09);
+  }
+  70% {
+    transform: translateY(-50%) scale(0.995);
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+  }
+}
+
 @utility animate-reveal-up {
   animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility animate-hint-pulse {
   animation: hint-pulse 3s ease-in-out infinite;
+}
+
+@utility animate-settle-in {
+  animation: settle-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
