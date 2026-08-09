@@ -32,7 +32,7 @@ function Index() {
 
   useEffect(() => {
     if (!started) return;
-    const id = window.setTimeout(() => setShowText(true), 2500);
+    const id = window.setTimeout(() => setShowText(true), 2480);
     return () => window.clearTimeout(id);
   }, [started]);
 
@@ -42,7 +42,7 @@ function Index() {
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && start()}
       role="button"
       tabIndex={0}
-      aria-label="Toque para entrar"
+      aria-label="Toque para lançar a teia"
       className="relative flex min-h-screen w-full touch-none select-none items-center justify-center overflow-hidden bg-web-ink outline-none"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,color-mix(in_oklab,var(--web-blue)_22%,transparent),transparent_65%)]" />
