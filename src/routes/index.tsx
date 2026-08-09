@@ -32,7 +32,7 @@ function Index() {
 
   useEffect(() => {
     if (!started) return;
-    const id = window.setTimeout(() => setShowText(true), 2480);
+    const id = window.setTimeout(() => setShowText(true), 1720);
     return () => window.clearTimeout(id);
   }, [started]);
 
