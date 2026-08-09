@@ -194,16 +194,6 @@
   }
 }
 
-@keyframes hint-pulse-unused {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
 @utility animate-reveal-up {
   animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
