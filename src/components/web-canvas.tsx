@@ -100,6 +100,24 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.globalAlpha = 1;
       }
 
+      // spider morph: the web threads themselves gather into the spider
+      const morphIn = easeInOut(clamp01((t - T.spiderIn) / 300));
+      const morphOut = clamp01((t - T.spiderHold) / 240);
+      const m = morphIn * (1 - morphOut);
+      const u = R * 0.2;
+      // spoke index -> [side, kneeX, kneeY, footX, footY] (units of u)
+      const LEG: Record<number, [number, number, number, number, number]> = {
+        2: [1, 1.35, -1.9, 2.5, -0.6],
+        3: [1, 1.6, -1.35, 3.05, 0.35],
+        4: [1, 1.6, -0.7, 3.0, 1.35],
+        5: [1, 1.35, -0.1, 2.4, 2.2],
+        10: [-1, 1.35, -1.9, 2.5, -0.6],
+        9: [-1, 1.6, -1.35, 3.05, 0.35],
+        8: [-1, 1.6, -0.7, 3.0, 1.35],
+        7: [-1, 1.35, -0.1, 2.4, 2.2],
+      };
+      const mix = (a: number, b: number, k: number) => a + (b - a) * k;
+
       // 2. Web build
       if (t > T.dropEnd) {
         const wp = clamp01((t - T.dropEnd) / (T.webEnd - T.dropEnd));
@@ -107,8 +125,8 @@ export function WebCanvas({ running }: { running: boolean }) {
         for (let s = 0; s < SPOKES; s++) {
           const a = (s / SPOKES) * Math.PI * 2 - Math.PI / 2;
           // threads are "shot" outward: fast, staggered, slight overshoot snap
-          const delay = (s % 3) * 0.045 + Math.floor(s / 3) * 0.012;
-          const stagger = clamp01((wp - delay) / 0.3);
+          const delay = (s % 3) * 0.05 + Math.floor(s / 3) * 0.02;
+          const stagger = clamp01((wp - delay) / 0.34);
           const shot = easeOut(stagger);
           const len = R * shot;
           const ring: Array<[number, number]> = [];
@@ -119,13 +137,35 @@ export function WebCanvas({ running }: { running: boolean }) {
           pts.push(ring);
 
           if (stagger <= 0) continue;
-          ctx.globalAlpha = 0.72 * webFadeK;
-          ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(255,255,255,0.45)";
-          ctx.lineWidth = 0.7;
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(cx + Math.cos(a) * len, cy + Math.sin(a) * len);
-          ctx.stroke();
+          const ex = cx + Math.cos(a) * len;
+          const ey = cy + Math.sin(a) * len;
+          const leg = LEG[s];
+          const sway = Math.sin(t / 320 + s * 0.7) * u * 0.05 * m;
+
+          if (leg && m > 0.001) {
+            const [side, kx, ky, fx, fy] = leg;
+            const fX = cx + side * u * fx;
+            const fY = cy + u * fy + sway;
+            const kX = cx + side * u * kx;
+            const kY = cy + u * ky + sway;
+            const mx = (cx + ex) / 2;
+            const my = (cy + ey) / 2;
+            ctx.globalAlpha = Math.max(0.72 * webFadeK, 0.85 * m);
+            ctx.strokeStyle = s === 3 || s === 9 ? RED_DIM : "rgba(255,255,255,0.72)";
+            ctx.lineWidth = mix(0.7, 1.1, m);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.quadraticCurveTo(mix(mx, kX, m), mix(my, kY, m), mix(ex, fX, m), mix(ey, fY, m));
+            ctx.stroke();
+          } else {
+            ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9);
+            ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(255,255,255,0.45)";
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(mix(ex, cx, m * 0.7), mix(ey, cy, m * 0.7));
+            ctx.stroke();
+          }
 
           // travelling head of the thread
           if (stagger < 1) {
@@ -134,17 +174,18 @@ export function WebCanvas({ running }: { running: boolean }) {
             ctx.shadowBlur = 10;
             ctx.shadowColor = RED;
             ctx.beginPath();
-            ctx.arc(cx + Math.cos(a) * len, cy + Math.sin(a) * len, 1.4, 0, Math.PI * 2);
+            ctx.arc(ex, ey, 1.4, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
           }
         }
 
         for (let r = 0; r < RINGS; r++) {
-          const rp = clamp01((wp - 0.22 - r * 0.07) / 0.24);
+          const rp = clamp01((wp - 0.2 - r * 0.06) / 0.26);
           if (rp <= 0) continue;
           const count = Math.floor(SPOKES * easeInOut(rp));
-          ctx.globalAlpha = (r === RINGS - 1 ? 0.35 : 0.55) * webFadeK;
+          ctx.globalAlpha = (r === RINGS - 1 ? 0.35 : 0.55) * webFadeK * (1 - m);
+          if (ctx.globalAlpha <= 0.002) continue;
           ctx.strokeStyle = r === 1 ? RED_DIM : "rgba(255,255,255,0.38)";
           ctx.lineWidth = 0.6;
           ctx.beginPath();
@@ -162,7 +203,7 @@ export function WebCanvas({ running }: { running: boolean }) {
         }
 
         // sparse blue accents
-        ctx.globalAlpha = 0.9 * webFadeK * clamp01((wp - 0.5) / 0.4);
+        ctx.globalAlpha = 0.9 * webFadeK * clamp01((wp - 0.5) / 0.4) * (1 - m);
         ctx.fillStyle = BLUE;
         for (let s = 0; s < SPOKES; s += 5) {
           const p = pts[s]![2]!;
@@ -173,69 +214,28 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.globalAlpha = 1;
       }
 
-      // 3. Geometric spider
-      if (t > T.spiderIn) {
-        const inP = easeOut(clamp01((t - T.spiderIn) / 320));
-        const outP = clamp01((t - T.spiderHold) / 380);
-        const alpha = inP * (1 - outP);
-        const scale = (0.86 + 0.14 * inP) * (1 + outP * 0.5);
-        const u = R * 0.2 * scale;
-        const breathe = 1 + Math.sin(t / 260) * 0.02;
-
+      // 3. Spider body drawn from the same threads
+      if (m > 0.001) {
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.scale(breathe, 1 / breathe);
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = m;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
-        ctx.shadowBlur = 16 * alpha;
+        ctx.shadowBlur = 14 * m;
         ctx.shadowColor = RED;
 
-        // organic body: tapered abdomen + small cephalothorax
         ctx.strokeStyle = "rgba(255,255,255,0.9)";
         ctx.lineWidth = 1.1;
         ctx.beginPath();
-        ctx.ellipse(0, u * 0.55, u * 0.42, u * 0.78, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, u * 0.55, u * 0.42 * m, u * 0.78 * m, 0, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.strokeStyle = RED;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.ellipse(0, -u * 0.55, u * 0.3, u * 0.42, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -u * 0.55, u * 0.3 * m, u * 0.42 * m, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 8 curved, tapering legs: knee up-and-out, foot far out and low
-        // [anchorY, kneeX, kneeY, footX, footY]
-        const legs: Array<[number, number, number, number, number]> = [
-          [-0.5, 1.35, -1.9, 2.5, -0.6],
-          [-0.25, 1.6, -1.35, 3.05, 0.35],
-          [0.05, 1.6, -0.7, 3.0, 1.35],
-          [0.35, 1.35, -0.1, 2.4, 2.2],
-        ];
-        for (const side of [-1, 1]) {
-          legs.forEach(([ay, kx, ky, fx, fy], i) => {
-            const sway = Math.sin(t / 320 + i * 0.8 + (side > 0 ? 0 : 1.5)) * u * 0.06;
-            const ax = side * u * 0.22;
-            const ay0 = u * ay;
-            const kX = side * u * kx;
-            const kY = u * ky + sway;
-            const fX = side * u * fx;
-            const fY = u * fy + sway;
-            ctx.strokeStyle = i === 1 ? RED_DIM : "rgba(255,255,255,0.78)";
-            // femur: arcs upward from body to the knee
-            ctx.lineWidth = 1.15;
-            ctx.beginPath();
-            ctx.moveTo(ax, ay0);
-            ctx.quadraticCurveTo(side * u * kx * 0.5, u * ay - u * 0.9 + sway, kX, kY);
-            ctx.stroke();
-            // tibia: sweeps down and out to the tip
-            ctx.lineWidth = 0.7;
-            ctx.beginPath();
-            ctx.moveTo(kX, kY);
-            ctx.quadraticCurveTo(side * u * (kx + (fx - kx) * 0.75), kY + u * 0.15, fX, fY);
-            ctx.stroke();
-          });
-        }
         ctx.restore();
         ctx.globalAlpha = 1;
         ctx.shadowBlur = 0;
