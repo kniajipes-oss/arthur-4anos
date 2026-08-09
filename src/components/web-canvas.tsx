@@ -204,33 +204,35 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.ellipse(0, -u * 0.55, u * 0.3, u * 0.42, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 8 curved, tapering legs (bezier arcs)
-        const legs: Array<[number, number, number, number]> = [
-          // [anchorY, reach, lift, footDrop]
-          [-0.6, 1.9, -1.35, 0.35],
-          [-0.3, 2.25, -0.85, 0.95],
-          [0.05, 2.2, -0.25, 1.5],
-          [0.4, 1.8, 0.35, 1.85],
+        // 8 curved, tapering legs: knee up-and-out, foot far out and low
+        // [anchorY, kneeX, kneeY, footX, footY]
+        const legs: Array<[number, number, number, number, number]> = [
+          [-0.5, 1.35, -1.9, 2.5, -0.6],
+          [-0.25, 1.6, -1.35, 3.05, 0.35],
+          [0.05, 1.6, -0.7, 3.0, 1.35],
+          [0.35, 1.35, -0.1, 2.4, 2.2],
         ];
         for (const side of [-1, 1]) {
-          legs.forEach(([ay, reach, lift, footDrop], i) => {
-            const sway = Math.sin(t / 300 + i * 0.7 + (side > 0 ? 0 : 1.4)) * u * 0.05;
-            const ax = side * u * 0.26;
+          legs.forEach(([ay, kx, ky, fx, fy], i) => {
+            const sway = Math.sin(t / 320 + i * 0.8 + (side > 0 ? 0 : 1.5)) * u * 0.06;
+            const ax = side * u * 0.22;
             const ay0 = u * ay;
-            const kx = side * u * reach * 0.62;
-            const ky = u * lift + sway;
-            const fx = side * u * reach;
-            const fy = u * footDrop + sway;
+            const kX = side * u * kx;
+            const kY = u * ky + sway;
+            const fX = side * u * fx;
+            const fY = u * fy + sway;
             ctx.strokeStyle = i === 1 ? RED_DIM : "rgba(255,255,255,0.78)";
+            // femur: arcs upward from body to the knee
             ctx.lineWidth = 1.15;
             ctx.beginPath();
             ctx.moveTo(ax, ay0);
-            ctx.quadraticCurveTo(kx, ky, side * u * reach * 0.88, ky + u * 0.35);
+            ctx.quadraticCurveTo(side * u * kx * 0.5, u * ay - u * 0.9 + sway, kX, kY);
             ctx.stroke();
-            ctx.lineWidth = 0.75;
+            // tibia: sweeps down and out to the tip
+            ctx.lineWidth = 0.7;
             ctx.beginPath();
-            ctx.moveTo(side * u * reach * 0.88, ky + u * 0.35);
-            ctx.quadraticCurveTo(fx * 1.06, (ky + fy) / 2 + u * 0.3, fx * 0.98, fy);
+            ctx.moveTo(kX, kY);
+            ctx.quadraticCurveTo(side * u * (kx + (fx - kx) * 0.75), kY + u * 0.15, fX, fY);
             ctx.stroke();
           });
         }
