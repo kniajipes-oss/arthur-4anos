@@ -76,7 +76,7 @@
   --web-blue: oklch(0.35 0.11 255);
   --web-ink: oklch(0.09 0.008 265);
   --shadow-glow: 0 0 40px color-mix(in oklab, var(--web-red) 35%, transparent);
-  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-display: "Bebas Neue", system-ui, sans-serif;
   --font-body: "Space Grotesk", system-ui, sans-serif;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -182,6 +182,26 @@
   }
 }
 
+@keyframes thread-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes drift-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+
 @keyframes settle-in {
   0% {
     transform: translateY(-50%) scale(1.09);
@@ -204,4 +224,12 @@
 
 @utility animate-settle-in {
   animation: settle-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-thread-breathe {
+  animation: thread-breathe 2.6s ease-in-out infinite;
+}
+
+@utility animate-drift-x {
+  animation: drift-x 1.8s ease-in-out infinite;
 }
