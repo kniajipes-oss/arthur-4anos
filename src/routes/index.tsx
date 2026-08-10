@@ -80,28 +80,36 @@ function Index() {
       role={stage === "idle" ? "button" : undefined}
       tabIndex={stage === "idle" ? 0 : -1}
       aria-label="Toque para lançar a teia"
-      className="relative flex min-h-screen w-full touch-none select-none items-center justify-center overflow-hidden bg-web-ink outline-none"
+      className="relative flex h-[100svh] min-h-[100svh] w-full touch-none select-none items-center justify-center overflow-hidden bg-web-ink outline-none"
+      style={{
+        paddingTop: "max(env(safe-area-inset-top), 1.25rem)",
+        paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)",
+      }}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,color-mix(in_oklab,var(--web-blue)_22%,transparent),transparent_65%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_40%,var(--web-ink)_100%)]" />
 
-      {stage !== "info" && (
+      <div
+        className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
+          stage === "info" || stage === "confirm" ? "opacity-25" : "opacity-100"
+        }`}
+      >
         <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} />
-      )}
+      </div>
 
       {!started && (
-        <div className="absolute inset-x-0 top-0 flex flex-col items-center">
-          <span className="animate-thread-breathe h-[26vh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
-          <span className="animate-hint-pulse mt-6 text-[0.62rem] font-light tracking-[0.42em] text-foreground/70 uppercase">
+        <div className="absolute inset-x-0 top-[8%] flex flex-col items-center px-8">
+          <span className="animate-thread-breathe h-[22svh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
+          <span className="animate-hint-pulse mt-6 text-center text-[0.68rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
             Toque para lançar a teia
           </span>
         </div>
       )}
 
       {showText && stage !== "info" && stage !== "confirmed" && (
-        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-10 text-center">
+        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center">
           <h1
-            className="animate-reveal-up font-display text-[clamp(3rem,17vw,6rem)] leading-[0.9] tracking-[0.06em] text-foreground"
+            className="animate-reveal-up font-display text-[clamp(3.2rem,20vw,6.5rem)] leading-[0.88] tracking-[0.05em] text-foreground"
             style={{ textShadow: "0 0 34px color-mix(in oklab, var(--web-red) 45%, transparent)" }}
           >
             ARTHUR
@@ -111,7 +119,7 @@ function Index() {
             style={{ animationDelay: "140ms" }}
           />
           <p
-            className="animate-reveal-up mt-4 font-display text-[clamp(1.6rem,9vw,3rem)] tracking-[0.18em] text-web-red-bright"
+            className="animate-reveal-up mt-4 font-display text-[clamp(2rem,11vw,3.4rem)] tracking-[0.16em] text-web-red-bright"
             style={{ animationDelay: "240ms" }}
           >
             FAZ 4!
@@ -121,7 +129,7 @@ function Index() {
 
       {stage === "pull" && (
         <div
-          className="animate-reveal-up absolute inset-x-0 bottom-16 flex flex-col items-center gap-4"
+          className="animate-reveal-up absolute inset-x-0 bottom-[10svh] flex flex-col items-center gap-4 py-4"
           onPointerDown={(e) => {
             e.stopPropagation();
             dragRef.current = e.clientX;
@@ -136,70 +144,118 @@ function Index() {
           tabIndex={0}
           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setStage("info")}
         >
-          <div className="relative h-px w-56 bg-gradient-to-r from-transparent via-foreground/25 to-transparent">
+          <div className="relative h-px w-[60vw] max-w-64 bg-gradient-to-r from-transparent via-foreground/25 to-transparent">
             <span
               className="absolute top-1/2 left-4 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)] transition-transform"
               style={{ transform: `translate(${pull * 150}px,-50%)` }}
             />
           </div>
-          <span className="animate-drift-x text-[0.6rem] font-light tracking-[0.42em] text-foreground/70 uppercase">
+          <span className="animate-drift-x text-[0.64rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
             Puxe a teia →
           </span>
         </div>
       )}
 
       {stage === "info" && (
-        <div className="animate-settle-in absolute inset-0 flex flex-col items-center justify-center gap-8 px-8 text-center">
-          <div className="animate-reveal-up">
-            <p className="text-[0.6rem] tracking-[0.42em] text-web-red-bright uppercase">Quando</p>
-            <p className="mt-3 font-display text-[clamp(1.7rem,8vw,2.6rem)] tracking-[0.08em] text-foreground">
-              19 de dezembro de 2026
-            </p>
-            <p className="mt-1 text-sm tracking-[0.24em] text-foreground/70 uppercase">
-              Domingo • 12h00
-            </p>
+        <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-between px-7 py-[7svh] text-center">
+          <div className="animate-reveal-up flex flex-col items-center">
+            <h2 className="font-display text-[clamp(2.4rem,13vw,3.6rem)] leading-[0.9] tracking-[0.05em] text-foreground">
+              Arthur <span className="text-web-red-bright">faz 4!</span>
+            </h2>
+            <span className="mt-5 h-px w-16 bg-web-red-bright/80" />
           </div>
 
-          <span className="h-px w-24 bg-web-red/70" />
+          <div className="flex w-full flex-col items-center gap-[5svh]">
+            <div className="animate-reveal-up" style={{ animationDelay: "120ms" }}>
+              <p className="font-display text-[clamp(1.9rem,9vw,2.6rem)] leading-tight tracking-[0.06em] text-foreground">
+                19 de dezembro
+                <br />
+                de 2026
+              </p>
+              <p className="mt-3 text-[0.78rem] tracking-[0.3em] text-web-red-bright uppercase">
+                Domingo • 12h00
+              </p>
+            </div>
 
-          <div className="animate-reveal-up" style={{ animationDelay: "140ms" }}>
-            <p className="text-[0.6rem] tracking-[0.42em] text-web-red-bright uppercase">Onde</p>
-            <p className="mt-3 font-display text-[clamp(1.5rem,7vw,2.2rem)] tracking-[0.08em] text-foreground">
-              Molecada Kids
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-foreground/70">
-              Rua Flor das Cobras, 226
-              <br />
-              Jardim Alvorada, BH
-            </p>
+            <span className="h-px w-20 bg-web-red/60" />
+
+            <div className="animate-reveal-up" style={{ animationDelay: "240ms" }}>
+              <p className="font-display text-[clamp(1.7rem,8vw,2.3rem)] tracking-[0.07em] text-foreground">
+                Molecada Kids
+              </p>
+              <p className="mt-3 text-[0.95rem] leading-relaxed text-foreground/75">
+                Rua Flor das Cobras, 226
+                <br />
+                Jardim Alvorada • BH
+              </p>
+            </div>
           </div>
 
           <div
-            className="animate-reveal-up mt-2 flex flex-col items-center gap-5"
-            style={{ animationDelay: "260ms" }}
+            className="animate-reveal-up flex w-full flex-col items-center gap-4 py-3"
+            style={{ animationDelay: "360ms" }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              dragRef.current = e.clientX;
+            }}
+            onPointerMove={(e) => {
+              if (dragRef.current === null) return;
+              const d = Math.max(0, e.clientX - dragRef.current);
+              setPull(Math.min(1, d / 120));
+              if (d > 110) {
+                dragRef.current = null;
+                setPull(0);
+                setStage("confirm");
+              }
+            }}
+            onPointerUp={() => {
+              dragRef.current = null;
+              setPull(0);
+            }}
+            onClick={() => setStage("confirm")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setStage("confirm")}
           >
-            <p className="font-display text-[clamp(1.2rem,6vw,1.8rem)] tracking-[0.14em] text-foreground">
-              Vem comemorar comigo?
-            </p>
-            <button
-              onClick={confirm}
-              className="rounded-full border border-web-red/70 px-8 py-3 text-[0.62rem] font-medium tracking-[0.34em] text-web-red-bright uppercase transition-all hover:bg-web-red/15 hover:shadow-[0_0_28px_color-mix(in_oklab,var(--web-red)_45%,transparent)]"
-            >
-              Confirmar presença
-            </button>
+            <div className="relative h-px w-[60vw] max-w-64 bg-gradient-to-r from-transparent via-foreground/25 to-transparent">
+              <span
+                className="absolute top-1/2 left-4 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)] transition-transform"
+                style={{ transform: `translate(${pull * 150}px,-50%)` }}
+              />
+            </div>
+            <span className="animate-drift-x text-[0.64rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
+              Puxe a teia →
+            </span>
           </div>
         </div>
       )}
 
+      {stage === "confirm" && (
+        <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-center gap-[7svh] px-8 text-center">
+          <p className="animate-reveal-up font-display text-[clamp(2rem,10vw,3rem)] leading-[1.05] tracking-[0.08em] text-foreground">
+            Vem comemorar
+            <br />
+            comigo?
+          </p>
+          <button
+            onClick={confirm}
+            style={{ animationDelay: "160ms" }}
+            className="animate-reveal-up w-full max-w-[19rem] rounded-full border border-web-red/70 bg-web-red/10 px-8 py-5 text-[0.72rem] font-medium tracking-[0.3em] text-web-red-bright uppercase transition-all active:scale-[0.98] hover:bg-web-red/20 hover:shadow-[0_0_32px_color-mix(in_oklab,var(--web-red)_45%,transparent)]"
+          >
+            Confirmar presença
+          </button>
+        </div>
+      )}
+
       {stage === "confirmed" && (
-        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-10 text-center">
-          <p className="animate-reveal-up font-display text-[clamp(1.8rem,10vw,3.2rem)] leading-tight tracking-[0.1em] text-foreground">
+        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-8 text-center">
+          <p className="animate-reveal-up font-display text-[clamp(2.2rem,12vw,3.4rem)] leading-[1.02] tracking-[0.08em] text-foreground">
             Presença
             <br />
             <span className="text-web-red-bright">confirmada!</span>
           </p>
           <span
-            className="animate-reveal-up mt-4 text-lg text-web-red-bright"
+            className="animate-reveal-up mt-5 text-2xl"
             style={{ animationDelay: "220ms" }}
           >
             ❤️
