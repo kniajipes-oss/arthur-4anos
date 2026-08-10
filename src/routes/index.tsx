@@ -106,7 +106,7 @@ function Index() {
         </div>
       )}
 
-      {showText && stage !== "info" && stage !== "confirmed" && (
+      {showText && (stage === "opening" || stage === "pull") && (
         <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center">
           <h1
             className="animate-reveal-up font-display text-[clamp(3.2rem,20vw,6.5rem)] leading-[0.88] tracking-[0.05em] text-foreground"
