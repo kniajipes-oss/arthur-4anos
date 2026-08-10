@@ -151,7 +151,7 @@ export function WebCanvas({ running }: { running: boolean }) {
             const mx = (cx + ex) / 2;
             const my = (cy + ey) / 2;
             ctx.globalAlpha = Math.max(0.72 * webFadeK, 0.85 * m);
-            ctx.strokeStyle = s === 3 || s === 9 ? RED_DIM : "rgba(255,255,255,0.72)";
+            ctx.strokeStyle = s % 3 === 0 ? RED : s === 4 || s === 8 ? RED_DIM : "rgba(255,255,255,0.72)";
             ctx.lineWidth = mix(0.7, 1.1, m);
             ctx.beginPath();
             ctx.moveTo(cx, cy);
@@ -159,7 +159,7 @@ export function WebCanvas({ running }: { running: boolean }) {
             ctx.stroke();
           } else {
             ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9);
-            ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(255,255,255,0.45)";
+            ctx.strokeStyle = s % 3 === 0 ? RED : s % 3 === 1 ? RED_DIM : "rgba(255,255,255,0.42)";
             ctx.lineWidth = 0.7;
             ctx.beginPath();
             ctx.moveTo(cx, cy);
@@ -186,7 +186,7 @@ export function WebCanvas({ running }: { running: boolean }) {
           const count = Math.floor(SPOKES * easeInOut(rp));
           ctx.globalAlpha = (r === RINGS - 1 ? 0.35 : 0.55) * webFadeK * (1 - m);
           if (ctx.globalAlpha <= 0.002) continue;
-          ctx.strokeStyle = r === 1 ? RED_DIM : "rgba(255,255,255,0.38)";
+          ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : "rgba(255,255,255,0.34)";
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
@@ -235,6 +235,18 @@ export function WebCanvas({ running }: { running: boolean }) {
         ctx.beginPath();
         ctx.ellipse(0, -u * 0.55, u * 0.3 * m, u * 0.42 * m, 0, 0, Math.PI * 2);
         ctx.stroke();
+
+        // small red accents on the spider
+        ctx.fillStyle = RED;
+        ctx.globalAlpha = m;
+        for (const dx of [-1, 1]) {
+          ctx.beginPath();
+          ctx.arc(dx * u * 0.14, -u * 0.68, 1.5 * m, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.arc(0, u * 0.55, 1.8 * m, 0, Math.PI * 2);
+        ctx.fill();
 
         ctx.restore();
         ctx.globalAlpha = 1;
