@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Stage = "idle" | "opening" | "pull" | "info" | "confirmed";
+type Stage = "idle" | "opening" | "pull" | "info" | "confirm" | "confirmed";
 
 function Index() {
   const [started, setStarted] = useState(false);
