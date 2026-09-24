@@ -140,9 +140,7 @@ function Index() {
       }}
     >
       {/* blue night atmosphere */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,color-mix(in_oklab,var(--web-blue)_45%,transparent),transparent_62%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_100%,color-mix(in_oklab,var(--web-blue)_22%,transparent),transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_45%,var(--web-deep)_100%)]" />
+      <div className="bg-night-atmosphere pointer-events-none absolute inset-0" />
 
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
@@ -174,7 +172,7 @@ function Index() {
         >
           <h1
             className="animate-reveal-up font-display text-[clamp(2.2rem,12.5vw,4.6rem)] leading-none font-bold tracking-[0.04em] text-foreground"
-            style={{ textShadow: "0 0 34px color-mix(in oklab, var(--web-blue) 70%, transparent)" }}
+            style={{ textShadow: "0 2px 18px color-mix(in oklab, var(--web-deep) 80%, transparent)" }}
           >
             ARTHUR
           </h1>
