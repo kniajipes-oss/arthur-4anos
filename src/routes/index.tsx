@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { WebCanvas } from "@/components/web-canvas";
 
 const WHATSAPP_NUMBER = "";
-const CONFIRM_MESSAGE =
-  "Oi! Confirmo presença no aniversário de 4 anos do Arthur, dia 19/12/2026 às 12h.";
+const CONFIRM_MESSAGE = "Oi! Confirmo minha presença no aniversário do Arthur. ❤️";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,26 +12,64 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Abertura interativa do convite de aniversário do Arthur: teia, aranha geométrica e uma pequena surpresa visual.",
+          "Convite interativo do aniversário de 4 anos do Arthur: 19 de dezembro de 2026, sábado, 12h, Molecada Kids.",
       },
       { property: "og:title", content: "Arthur faz 4 — Convite" },
       {
         property: "og:description",
-        content: "Toque para entrar e ver a teia se formar. Arthur faz 4!",
+        content: "Toque para lançar a teia. Arthur faz 4! Sábado, 19/12, 12h.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
 });
 
-type Stage = "idle" | "opening" | "pull" | "info" | "confirm" | "confirmed";
+type Stage = "idle" | "opening" | "tease" | "date" | "venue" | "confirmed";
+type Ripple = { id: number; x: number; y: number };
+
+function WebRipple({ x, y }: { x: number; y: number }) {
+  const spokes = Array.from({ length: 12 }, (_, i) => (i / 12) * Math.PI * 2);
+  return (
+    <svg
+      className="animate-web-ripple pointer-events-none absolute h-[150vmax] w-[150vmax]"
+      style={{ left: x, top: y }}
+      viewBox="-100 -100 200 200"
+      aria-hidden="true"
+    >
+      {spokes.map((a, i) => (
+        <line
+          key={i}
+          x1={0}
+          y1={0}
+          x2={Math.cos(a) * 100}
+          y2={Math.sin(a) * 100}
+          stroke={i % 3 === 0 ? "var(--web-red-bright)" : "var(--web-blue)"}
+          strokeWidth={0.18}
+          opacity={i % 3 === 0 ? 0.8 : 0.9}
+        />
+      ))}
+      {[18, 36, 58, 82].map((r, i) => (
+        <circle
+          key={r}
+          r={r}
+          fill="none"
+          stroke={i % 2 ? "var(--web-red)" : "var(--web-blue)"}
+          strokeWidth={0.22}
+        />
+      ))}
+      <circle r={1.4} fill="var(--web-red-bright)" />
+    </svg>
+  );
+}
 
 function Index() {
   const [started, setStarted] = useState(false);
   const [showText, setShowText] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
-  const [pull, setPull] = useState(0);
-  const dragRef = useRef<number | null>(null);
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+  const busy = useRef(false);
 
   const start = useCallback(() => {
     if (started) return;
@@ -42,29 +79,36 @@ function Index() {
 
   useEffect(() => {
     if (!started) return;
-    const id = window.setTimeout(() => setShowText(true), 1720);
+    const id = window.setTimeout(() => setShowText(true), 2950);
     return () => window.clearTimeout(id);
   }, [started]);
 
   useEffect(() => {
     if (!showText || stage !== "opening") return;
-    const id = window.setTimeout(() => setStage("pull"), 1200);
+    const id = window.setTimeout(() => setStage("tease"), 1300);
     return () => window.clearTimeout(id);
   }, [showText, stage]);
 
-  const onPullMove = (x: number) => {
-    if (dragRef.current === null) return;
-    const d = Math.max(0, x - dragRef.current);
-    setPull(Math.min(1, d / 120));
-    if (d > 110) {
-      dragRef.current = null;
-      setPull(0);
-      setStage("info");
-    }
+  const advance = (x: number, y: number, next: Stage) => {
+    if (busy.current) return;
+    busy.current = true;
+    const id = Date.now();
+    setRipples((r) => [...r, { id, x, y }]);
+    window.setTimeout(() => setStage(next), 420);
+    window.setTimeout(() => {
+      setRipples((r) => r.filter((p) => p.id !== id));
+      busy.current = false;
+    }, 950);
   };
 
-  const confirm = () => {
-    setStage("confirmed");
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (stage === "idle") return start();
+    if (stage === "tease") return advance(e.clientX, e.clientY, "date");
+    if (stage === "date") return advance(e.clientX, e.clientY, "venue");
+  };
+
+  const confirm = (e: React.MouseEvent) => {
+    advance(e.clientX, e.clientY, "confirmed");
     if (WHATSAPP_NUMBER) {
       window.open(
         `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(CONFIRM_MESSAGE)}`,
@@ -73,53 +117,73 @@ function Index() {
     }
   };
 
+  const dim = stage === "date" || stage === "venue";
+
   return (
     <main
-      onPointerDown={stage === "idle" ? start : undefined}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && start()}
-      role={stage === "idle" ? "button" : undefined}
-      tabIndex={stage === "idle" ? 0 : -1}
-      aria-label="Toque para lançar a teia"
-      className="relative flex h-[100svh] min-h-[100svh] w-full touch-none select-none items-center justify-center overflow-hidden bg-web-ink outline-none"
+      onPointerDown={onPointerDown}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        if (stage === "idle") start();
+        else if (stage === "tease") advance(cx, cy, "date");
+        else if (stage === "date") advance(cx, cy, "venue");
+      }}
+      role={stage === "idle" || stage === "tease" || stage === "date" ? "button" : undefined}
+      tabIndex={0}
+      aria-label={stage === "idle" ? "Toque para lançar a teia" : "Toque para revelar"}
+      className="relative flex h-[100svh] min-h-[100svh] w-full touch-none select-none items-center justify-center overflow-hidden bg-web-ink font-body outline-none"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 1.25rem)",
         paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)",
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,color-mix(in_oklab,var(--web-blue)_22%,transparent),transparent_65%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_40%,var(--web-ink)_100%)]" />
+      {/* blue night atmosphere */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,color-mix(in_oklab,var(--web-blue)_45%,transparent),transparent_62%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_100%,color-mix(in_oklab,var(--web-blue)_22%,transparent),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_45%,var(--web-deep)_100%)]" />
 
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-          stage === "info" || stage === "confirm" ? "opacity-25" : "opacity-100"
+          dim ? "opacity-20" : "opacity-100"
         }`}
       >
         <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} />
       </div>
 
+      {ripples.map((r) => (
+        <WebRipple key={r.id} x={r.x} y={r.y} />
+      ))}
+
       {!started && (
         <div className="absolute inset-x-0 top-[8%] flex flex-col items-center px-8">
           <span className="animate-thread-breathe h-[22svh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
-          <span className="animate-hint-pulse mt-6 text-center text-[0.68rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
+          <span className="animate-hint-pulse mt-6 text-center text-[0.68rem] font-light tracking-[0.38em] text-foreground/75 uppercase">
             Toque para lançar a teia
           </span>
         </div>
       )}
 
-      {showText && (stage === "opening" || stage === "pull") && (
-        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center">
+      {showText && (stage === "opening" || stage === "tease") && (
+        <div
+          key="hero"
+          className={`animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-8 text-center transition-opacity duration-300 ${
+            ripples.length ? "opacity-0" : "opacity-100"
+          }`}
+        >
           <h1
-            className="animate-reveal-up font-display text-[clamp(3.2rem,20vw,6.5rem)] leading-[0.88] tracking-[0.05em] text-foreground"
-            style={{ textShadow: "0 0 34px color-mix(in oklab, var(--web-red) 45%, transparent)" }}
+            className="animate-reveal-up font-display text-[clamp(2.2rem,12.5vw,4.6rem)] leading-none font-bold tracking-[0.04em] text-foreground"
+            style={{ textShadow: "0 0 34px color-mix(in oklab, var(--web-blue) 70%, transparent)" }}
           >
             ARTHUR
           </h1>
           <span
-            className="animate-reveal-up mt-4 h-px w-24 bg-web-red-bright"
+            className="animate-reveal-up mt-5 h-px w-20 bg-web-red-bright"
             style={{ animationDelay: "140ms" }}
           />
           <p
-            className="animate-reveal-up mt-4 font-display text-[clamp(2rem,11vw,3.4rem)] tracking-[0.16em] text-web-red-bright"
+            className="animate-reveal-up mt-5 font-display text-[clamp(1.5rem,8vw,2.6rem)] font-medium tracking-[0.14em] text-web-red-bright"
             style={{ animationDelay: "240ms" }}
           >
             FAZ 4!
@@ -127,120 +191,96 @@ function Index() {
         </div>
       )}
 
-      {stage === "pull" && (
-        <div
-          className="animate-reveal-up absolute inset-x-0 bottom-[10svh] flex flex-col items-center gap-4 py-4"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            dragRef.current = e.clientX;
-          }}
-          onPointerMove={(e) => onPullMove(e.clientX)}
-          onPointerUp={() => {
-            dragRef.current = null;
-            setPull(0);
-          }}
-          onClick={() => setStage("info")}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setStage("info")}
+      {stage === "tease" && (
+        <p
+          className={`animate-reveal-up absolute inset-x-0 bottom-[12svh] px-8 text-center text-[0.7rem] font-light tracking-[0.36em] text-foreground/80 uppercase transition-opacity duration-300 ${
+            ripples.length ? "opacity-0" : ""
+          }`}
         >
-          <div className="relative h-px w-[60vw] max-w-64 bg-gradient-to-r from-transparent via-foreground/25 to-transparent">
+          <span className="animate-hint-pulse inline-block">A teia tem mais a revelar...</span>
+        </p>
+      )}
+
+      {stage === "date" && (
+        <>
+          <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+            <p className="animate-reveal-up text-[0.7rem] font-light tracking-[0.34em] text-foreground/70 uppercase">
+              Meu aniversário está chegando...
+            </p>
             <span
-              className="absolute top-1/2 left-4 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)] transition-transform"
-              style={{ transform: `translate(${pull * 150}px,-50%)` }}
+              className="animate-reveal-up my-[6svh] h-[8svh] w-px bg-gradient-to-b from-transparent to-web-red-bright"
+              style={{ animationDelay: "100ms" }}
             />
+            <p
+              className="animate-reveal-up font-display text-[clamp(4rem,24vw,6rem)] leading-none font-bold text-foreground"
+              style={{ animationDelay: "180ms" }}
+            >
+              19
+            </p>
+            <p
+              className="animate-reveal-up mt-3 font-display text-[clamp(1.1rem,6vw,1.6rem)] font-medium tracking-[0.12em] text-foreground"
+              style={{ animationDelay: "260ms" }}
+            >
+              DE DEZEMBRO
+            </p>
+            <p
+              className="animate-reveal-up mt-2 text-[0.8rem] tracking-[0.3em] text-foreground/60"
+              style={{ animationDelay: "320ms" }}
+            >
+              2026
+            </p>
+            <p
+              className="animate-reveal-up mt-[5svh] text-[0.85rem] font-medium tracking-[0.34em] text-web-red-bright uppercase"
+              style={{ animationDelay: "400ms" }}
+            >
+              Sábado • 12h00
+            </p>
           </div>
-          <span className="animate-drift-x text-[0.64rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
-            Puxe a teia →
+          {/* subtle pulsing node suggests the next touch */}
+          <span className="pointer-events-none absolute bottom-[11svh] left-1/2">
+            <span className="animate-node-pulse absolute top-0 left-0 h-9 w-9 rounded-full border border-web-red/60" />
+            <span className="absolute top-0 left-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)]" />
           </span>
-        </div>
+        </>
       )}
 
-      {stage === "info" && (
-        <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-between px-7 py-[7svh] text-center">
-          <div className="animate-reveal-up flex flex-col items-center">
-            <h2 className="font-display text-[clamp(2.4rem,13vw,3.6rem)] leading-[0.9] tracking-[0.05em] text-foreground">
-              Arthur <span className="text-web-red-bright">faz 4!</span>
-            </h2>
-            <span className="mt-5 h-px w-16 bg-web-red-bright/80" />
-          </div>
-
-          <div className="flex w-full flex-col items-center gap-[5svh]">
-            <div className="animate-reveal-up" style={{ animationDelay: "120ms" }}>
-              <p className="font-display text-[clamp(1.9rem,9vw,2.6rem)] leading-tight tracking-[0.06em] text-foreground">
-                19 de dezembro
-                <br />
-                de 2026
-              </p>
-              <p className="mt-3 text-[0.78rem] tracking-[0.3em] text-web-red-bright uppercase">
-                Domingo • 12h00
-              </p>
-            </div>
-
-            <span className="h-px w-20 bg-web-red/60" />
-
-            <div className="animate-reveal-up" style={{ animationDelay: "240ms" }}>
-              <p className="font-display text-[clamp(1.7rem,8vw,2.3rem)] tracking-[0.07em] text-foreground">
-                Molecada Kids
-              </p>
-              <p className="mt-3 text-[0.95rem] leading-relaxed text-foreground/75">
-                Rua Flor das Cobras, 226
-                <br />
-                Jardim Alvorada • BH
-              </p>
-            </div>
-          </div>
-
-          <div
-            className="animate-reveal-up flex w-full flex-col items-center gap-4 py-3"
-            style={{ animationDelay: "360ms" }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              dragRef.current = e.clientX;
-            }}
-            onPointerMove={(e) => {
-              if (dragRef.current === null) return;
-              const d = Math.max(0, e.clientX - dragRef.current);
-              setPull(Math.min(1, d / 120));
-              if (d > 110) {
-                dragRef.current = null;
-                setPull(0);
-                setStage("confirm");
-              }
-            }}
-            onPointerUp={() => {
-              dragRef.current = null;
-              setPull(0);
-            }}
-            onClick={() => setStage("confirm")}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setStage("confirm")}
-          >
-            <div className="relative h-px w-[60vw] max-w-64 bg-gradient-to-r from-transparent via-foreground/25 to-transparent">
-              <span
-                className="absolute top-1/2 left-4 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)] transition-transform"
-                style={{ transform: `translate(${pull * 150}px,-50%)` }}
-              />
-            </div>
-            <span className="animate-drift-x text-[0.64rem] font-light tracking-[0.38em] text-foreground/70 uppercase">
-              Puxe a teia →
-            </span>
-          </div>
-        </div>
-      )}
-
-      {stage === "confirm" && (
-        <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-center gap-[7svh] px-8 text-center">
-          <p className="animate-reveal-up font-display text-[clamp(2rem,10vw,3rem)] leading-[1.05] tracking-[0.08em] text-foreground">
+      {stage === "venue" && (
+        <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-between px-7 pt-[9svh] pb-[8svh] text-center">
+          <p className="animate-reveal-up font-display text-[clamp(1.5rem,7.5vw,2.2rem)] leading-[1.2] font-medium tracking-[0.04em] text-foreground">
             Vem comemorar
             <br />
-            comigo?
+            <span className="text-web-red-bright">comigo?</span>
           </p>
+
+          <div className="flex flex-col items-center">
+            <p
+              className="animate-reveal-up font-display text-[clamp(1.4rem,7vw,2rem)] font-bold tracking-[0.06em] text-foreground"
+              style={{ animationDelay: "120ms" }}
+            >
+              MOLECADA KIDS
+            </p>
+            <p
+              className="animate-reveal-up mt-4 text-[1rem] leading-relaxed text-foreground/80"
+              style={{ animationDelay: "200ms" }}
+            >
+              Rua Flor das Cobras, 226
+              <br />
+              Jardim Alvorada • BH
+            </p>
+            <span className="my-6 h-px w-16 bg-web-red/70" />
+            <p
+              className="animate-reveal-up text-[0.8rem] font-medium tracking-[0.3em] text-web-red-bright uppercase"
+              style={{ animationDelay: "280ms" }}
+            >
+              19 de dezembro • 12h00
+            </p>
+          </div>
+
           <button
             onClick={confirm}
-            style={{ animationDelay: "160ms" }}
-            className="animate-reveal-up w-full max-w-[19rem] rounded-full border border-web-red/70 bg-web-red/10 px-8 py-5 text-[0.72rem] font-medium tracking-[0.3em] text-web-red-bright uppercase transition-all active:scale-[0.98] hover:bg-web-red/20 hover:shadow-[0_0_32px_color-mix(in_oklab,var(--web-red)_45%,transparent)]"
+            onPointerDown={(e) => e.stopPropagation()}
+            style={{ animationDelay: "380ms" }}
+            className="animate-reveal-up group relative w-full max-w-[20rem] overflow-hidden rounded-full border border-web-red/80 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--web-red)_28%,transparent),color-mix(in_oklab,var(--web-blue)_35%,transparent))] px-8 py-6 text-[0.78rem] font-medium tracking-[0.3em] text-foreground uppercase shadow-[0_0_36px_color-mix(in_oklab,var(--web-red)_35%,transparent)] transition-all active:scale-[0.97]"
           >
             Confirmar presença
           </button>
@@ -248,16 +288,16 @@ function Index() {
       )}
 
       {stage === "confirmed" && (
-        <div className="animate-settle-in absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-8 text-center">
-          <p className="animate-reveal-up font-display text-[clamp(2.2rem,12vw,3.4rem)] leading-[1.02] tracking-[0.08em] text-foreground">
-            Presença
-            <br />
-            <span className="text-web-red-bright">confirmada!</span>
-          </p>
-          <span
-            className="animate-reveal-up mt-5 text-2xl"
-            style={{ animationDelay: "220ms" }}
+        <div className="animate-settle-in absolute inset-x-0 top-[72%] flex -translate-y-1/2 flex-col items-center px-8 text-center">
+          <p
+            className="animate-reveal-up font-display text-[clamp(1.6rem,8.5vw,2.4rem)] leading-[1.2] font-bold tracking-[0.05em] text-foreground"
+            style={{ animationDelay: "2600ms" }}
           >
+            PRESENÇA
+            <br />
+            <span className="text-web-red-bright">CONFIRMADA!</span>
+          </p>
+          <span className="animate-reveal-up mt-4 text-xl" style={{ animationDelay: "2900ms" }}>
             ❤️
           </span>
         </div>

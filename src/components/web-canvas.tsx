@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react";
 
+// ~4s opening: line → web → spider (visible pause) → text
+const S = 1.6;
 const T = {
   hold: 30,
-  dropEnd: 430,
-  webEnd: 1220,
-  spiderIn: 1150,
-  spiderHold: 1620,
-  webFade: 1660,
-  end: 2600,
+  dropEnd: 430 * S,
+  webEnd: 1220 * S,
+  spiderIn: 1150 * S,
+  spiderHold: 1620 * S + 150,
+  webFade: 1660 * S + 150,
+  end: 2600 * S,
 };
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
