@@ -118,12 +118,10 @@ function Index() {
 
   const confirm = (e: React.MouseEvent) => {
     advance(e.clientX, e.clientY, "confirmed");
-    if (WHATSAPP_NUMBER) {
-      window.open(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(CONFIRM_MESSAGE)}`,
-        "_blank",
-      );
-    }
+    window.open(
+      `https://wa.me/${whatsappDestino()}?text=${encodeURIComponent(CONFIRM_MESSAGE)}`,
+      "_blank",
+    );
   };
 
   const dim = stage === "date" || stage === "venue";
@@ -291,9 +289,7 @@ function Index() {
             className="animate-reveal-up font-display text-[clamp(1.6rem,8.5vw,2.4rem)] leading-[1.2] font-bold tracking-[0.05em] text-foreground"
             style={{ animationDelay: "2600ms" }}
           >
-            PRESENÇA
-            <br />
-            <span className="text-web-red-bright">CONFIRMADA!</span>
+            <span className="text-web-red-bright">ATÉ LÁ!</span>
           </p>
           <span className="animate-reveal-up mt-4 text-xl" style={{ animationDelay: "2900ms" }}>
             ❤️
