@@ -20,7 +20,7 @@ function cssColor(el: HTMLElement, name: string) {
   return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
-export function WebCanvas({ running }: { running: boolean }) {
+export function WebCanvas({ running, heart = false }: { running: boolean; heart?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function WebCanvas({ running }: { running: boolean }) {
         return;
       }
 
-      const webFadeK = 1 - clamp01((t - T.webFade) / 520) * 0.78;
+      const webFadeK = 1 - clamp01((t - T.webFade) / 520) * (heart ? 0.55 : 0.38);
 
       // 1. Descending thread
       if (t > T.hold) {
@@ -103,7 +103,7 @@ export function WebCanvas({ running }: { running: boolean }) {
       }
 
       // spider morph: the web threads themselves gather into the spider
-      const morphIn = easeInOut(clamp01((t - T.spiderIn) / 300));
+      const morphIn = heart ? 0 : easeInOut(clamp01((t - T.spiderIn) / 300));
       const morphOut = clamp01((t - T.spiderHold) / 240);
       const m = morphIn * (1 - morphOut);
       const u = R * 0.2;
@@ -188,10 +188,10 @@ export function WebCanvas({ running }: { running: boolean }) {
           const rp = clamp01((wp - 0.2 - r * 0.06) / 0.26);
           if (rp <= 0) continue;
           const count = Math.floor(SPOKES * easeInOut(rp));
-          ctx.globalAlpha = (r === RINGS - 1 ? 0.35 : 0.55) * webFadeK * (1 - m);
+          ctx.globalAlpha = (r === RINGS - 1 ? 0.6 : 0.78) * webFadeK * (1 - m);
           if (ctx.globalAlpha <= 0.002) continue;
-          ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : "rgba(255,255,255,0.34)";
-          ctx.lineWidth = 0.6;
+          ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : "rgba(214,224,245,0.5)";
+          ctx.lineWidth = 0.85;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
             const a = pts[s]![r]!;
@@ -216,6 +216,39 @@ export function WebCanvas({ running }: { running: boolean }) {
           ctx.fill();
         }
         ctx.globalAlpha = 1;
+      }
+
+      // 3b. Heart traced by a thread of the web (closing screen)
+      if (heart && t > T.webFade) {
+        const hp = easeInOut(clamp01((t - T.webFade) / 900));
+        const k = R / 30;
+        const N = 120;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = RED;
+        ctx.lineWidth = 1.2;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = RED;
+        ctx.globalAlpha = 0.95;
+        ctx.beginPath();
+        let lx = 0, ly = 0;
+        for (let i = 0; i <= N * hp; i++) {
+          const a = (i / N) * Math.PI * 2;
+          const x = 16 * Math.pow(Math.sin(a), 3) * k;
+          const y = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * k;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          lx = x; ly = y;
+        }
+        ctx.stroke();
+        if (hp < 1) {
+          ctx.fillStyle = RED;
+          ctx.beginPath();
+          ctx.arc(lx, ly, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
       }
 
       // 3. Spider body drawn from the same threads
@@ -266,7 +299,7 @@ export function WebCanvas({ running }: { running: boolean }) {
       window.removeEventListener("resize", resize);
       void withAlpha;
     };
-  }, [running]);
+  }, [running, heart]);
 
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
