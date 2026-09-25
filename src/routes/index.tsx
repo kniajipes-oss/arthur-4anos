@@ -4,14 +4,15 @@ import { WebCanvas } from "@/components/web-canvas";
 
 const WHATSAPP_KENIA = "5531994980214";
 const WHATSAPP_LUCIANO = "5531985060034";
-// Destinatário padrão. Links com ?de=luciano enviam para o Luciano.
-const WHATSAPP_DESTINO_PADRAO = WHATSAPP_KENIA;
+// WHATSAPP_DESTINO: número padrão desta versão do convite (Kênia).
+// Links com ?de=luciano enviam para o Luciano.
+const WHATSAPP_DESTINO = WHATSAPP_KENIA;
 const CONFIRM_MESSAGE =
-  "Oi! Recebi o convite do aniversário do Arthur. Meu nome é [NOME] e confirmo minha presença no dia 19/12 às 12h. ❤️";
+  "Oi! Recebi o convite do aniversário do Arthur e quero confirmar minha presença. ❤️";
 
 function whatsappDestino() {
   const de = new URLSearchParams(window.location.search).get("de")?.toLowerCase();
-  return de === "luciano" ? WHATSAPP_LUCIANO : WHATSAPP_DESTINO_PADRAO;
+  return de === "luciano" ? WHATSAPP_LUCIANO : WHATSAPP_DESTINO;
 }
 
 export const Route = createFileRoute("/")({
@@ -154,7 +155,7 @@ function Index() {
           dim ? "opacity-20" : "opacity-100"
         }`}
       >
-        <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} />
+        <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
       </div>
 
       {ripples.map((r) => (
@@ -183,10 +184,6 @@ function Index() {
           >
             ARTHUR
           </h1>
-          <span
-            className="animate-reveal-up mt-5 h-px w-20 bg-web-red-bright"
-            style={{ animationDelay: "140ms" }}
-          />
           <p
             className="animate-reveal-up mt-5 font-display text-[clamp(1.5rem,8vw,2.6rem)] font-medium tracking-[0.14em] text-web-red-bright"
             style={{ animationDelay: "240ms" }}
@@ -287,13 +284,16 @@ function Index() {
         <div className="animate-settle-in absolute inset-x-0 top-[72%] flex -translate-y-1/2 flex-col items-center px-8 text-center">
           <p
             className="animate-reveal-up font-display text-[clamp(1.6rem,8.5vw,2.4rem)] leading-[1.2] font-bold tracking-[0.05em] text-foreground"
-            style={{ animationDelay: "2600ms" }}
+            style={{ animationDelay: "3200ms" }}
           >
-            <span className="text-web-red-bright">ATÉ LÁ!</span>
+            PRESENÇA <span className="text-web-red-bright">CONFIRMADA!</span>
           </p>
-          <span className="animate-reveal-up mt-4 text-xl" style={{ animationDelay: "2900ms" }}>
-            ❤️
-          </span>
+          <p
+            className="animate-reveal-up mt-4 text-[0.8rem] font-medium tracking-[0.34em] text-foreground/80 uppercase"
+            style={{ animationDelay: "3500ms" }}
+          >
+            Até lá!
+          </p>
         </div>
       )}
     </main>
