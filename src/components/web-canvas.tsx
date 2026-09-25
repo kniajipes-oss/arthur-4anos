@@ -125,15 +125,17 @@ export function WebCanvas({ running }: { running: boolean }) {
         const wp = clamp01((t - T.dropEnd) / (T.webEnd - T.dropEnd));
         const pts: Array<Array<[number, number]>> = [];
         for (let s = 0; s < SPOKES; s++) {
-          const a = (s / SPOKES) * Math.PI * 2 - Math.PI / 2;
+          const jitter = Math.sin(s * 12.9898) * 0.06;
+          const a = (s / SPOKES) * Math.PI * 2 - Math.PI / 2 + jitter;
+          const lenK = 0.9 + ((Math.sin(s * 78.233) + 1) / 2) * 0.14;
           // threads are "shot" outward: fast, staggered, slight overshoot snap
           const delay = (s % 3) * 0.05 + Math.floor(s / 3) * 0.02;
           const stagger = clamp01((wp - delay) / 0.34);
           const shot = easeOut(stagger);
-          const len = R * shot;
+          const len = R * lenK * shot;
           const ring: Array<[number, number]> = [];
           for (let r = 1; r <= RINGS; r++) {
-            const rr = R * (r / RINGS);
+            const rr = R * lenK * (r / RINGS) * (1 + Math.sin(s * 3.1 + r) * 0.035);
             ring.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
           }
           pts.push(ring);
@@ -162,7 +164,7 @@ export function WebCanvas({ running }: { running: boolean }) {
           } else {
             ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9);
             ctx.strokeStyle = s % 3 === 0 ? RED : s % 3 === 1 ? RED_DIM : "rgba(255,255,255,0.42)";
-            ctx.lineWidth = 0.7;
+            ctx.lineWidth = s % 3 === 0 ? 1.05 : 0.55;
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.lineTo(mix(ex, cx, m * 0.7), mix(ey, cy, m * 0.7));

@@ -202,15 +202,11 @@ function Index() {
       {stage === "date" && (
         <>
           <div className="animate-fade-in absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-            <p className="animate-reveal-up text-[0.7rem] font-light tracking-[0.34em] text-foreground/70 uppercase">
+            <p className="animate-reveal-up mb-6 text-[0.7rem] font-light tracking-[0.34em] text-foreground/70 uppercase">
               Meu aniversário está chegando...
             </p>
-            <span
-              className="animate-reveal-up my-[6svh] h-[8svh] w-px bg-gradient-to-b from-transparent to-web-red-bright"
-              style={{ animationDelay: "100ms" }}
-            />
             <p
-              className="animate-reveal-up font-display text-[clamp(4rem,24vw,6rem)] leading-none font-bold text-foreground"
+              className="animate-reveal-up font-display text-[clamp(3rem,17vw,4.4rem)] leading-none font-bold text-foreground"
               style={{ animationDelay: "180ms" }}
             >
               19
@@ -228,17 +224,12 @@ function Index() {
               2026
             </p>
             <p
-              className="animate-reveal-up mt-[5svh] text-[0.85rem] font-medium tracking-[0.34em] text-web-red-bright uppercase"
+              className="animate-reveal-up mt-8 text-[0.85rem] font-medium tracking-[0.34em] text-web-red-bright uppercase"
               style={{ animationDelay: "400ms" }}
             >
               Sábado • 12h00
             </p>
           </div>
-          {/* subtle pulsing node suggests the next touch */}
-          <span className="pointer-events-none absolute bottom-[11svh] left-1/2">
-            <span className="animate-node-pulse absolute top-0 left-0 h-9 w-9 rounded-full border border-web-red/60" />
-            <span className="absolute top-0 left-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-web-red-bright shadow-[0_0_12px_var(--web-red-bright)]" />
-          </span>
         </>
       )}
 
