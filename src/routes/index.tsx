@@ -2,8 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WebCanvas } from "@/components/web-canvas";
 
-const WHATSAPP_NUMBER = "";
-const CONFIRM_MESSAGE = "Oi! Confirmo minha presença no aniversário do Arthur. ❤️";
+const WHATSAPP_KENIA = "5531994980214";
+const WHATSAPP_LUCIANO = "5531985060034";
+// Destinatário padrão. Links com ?de=luciano enviam para o Luciano.
+const WHATSAPP_DESTINO_PADRAO = WHATSAPP_KENIA;
+const CONFIRM_MESSAGE =
+  "Oi! Recebi o convite do aniversário do Arthur. Meu nome é [NOME] e confirmo minha presença no dia 19/12 às 12h. ❤️";
+
+function whatsappDestino() {
+  const de = new URLSearchParams(window.location.search).get("de")?.toLowerCase();
+  return de === "luciano" ? WHATSAPP_LUCIANO : WHATSAPP_DESTINO_PADRAO;
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
