@@ -152,7 +152,7 @@ function Index() {
 
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-          dim ? "opacity-45" : "opacity-100"
+          dim ? "opacity-55" : "opacity-100"
         }`}
       >
         <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
