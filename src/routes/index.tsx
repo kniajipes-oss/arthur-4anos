@@ -162,6 +162,23 @@ function Index() {
         <WebRipple key={r.id} x={r.x} y={r.y} />
       ))}
 
+      {(stage === "date" || stage === "venue") && (
+        <button
+          type="button"
+          aria-label="Voltar"
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onClick={() => {
+            if (busy.current) return;
+            setStage(stage === "venue" ? "date" : "tease");
+          }}
+          className="absolute left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full text-[1.9rem] leading-none font-light text-foreground/55 transition-colors active:text-foreground/90"
+          style={{ top: "max(env(safe-area-inset-top), 0.75rem)" }}
+        >
+          ‹
+        </button>
+      )}
+
       {!started && (
         <div className="absolute inset-x-0 top-[8%] flex flex-col items-center px-8">
           <span className="animate-thread-breathe h-[22svh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
