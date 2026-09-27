@@ -179,6 +179,27 @@ function Index() {
         </button>
       )}
 
+      {(stage === "tease" || stage === "date") && (
+        <button
+          type="button"
+          aria-label="Avançar"
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onClick={() => {
+            if (busy.current) return;
+            advance(
+              window.innerWidth / 2,
+              window.innerHeight / 2,
+              stage === "tease" ? "date" : "venue",
+            );
+          }}
+          className="animate-arrow-hint-right absolute right-3 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 bg-foreground/[0.04] text-[2.3rem] leading-none font-light text-foreground/80 backdrop-blur-[2px] transition-colors active:border-foreground/20 active:text-foreground"
+          style={{ bottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+        >
+          ›
+        </button>
+      )}
+
       {!started && (
         <div className="absolute inset-x-0 top-[8%] flex flex-col items-center px-8">
           <span className="animate-thread-breathe h-[22svh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
