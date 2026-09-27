@@ -74,6 +74,21 @@ function WebRipple({ x, y }: { x: number; y: number }) {
   );
 }
 
+function TapCue({ hidden }: { hidden: boolean }) {
+  return (
+    <div
+      className={`animate-fade-in pointer-events-none absolute inset-x-0 bottom-[4.5svh] z-10 flex justify-center transition-opacity duration-300 ${
+        hidden ? "opacity-0" : "opacity-100"
+      }`}
+    >
+      <span className="relative flex h-11 w-11 items-center justify-center">
+        <span className="animate-tap-cue-ring absolute inset-0 rounded-full border border-web-red/45" />
+        <span className="animate-tap-cue-dot h-1.5 w-1.5 rounded-full bg-web-red-bright" />
+      </span>
+    </div>
+  );
+}
+
 function Index() {
   const [started, setStarted] = useState(false);
   const [showText, setShowText] = useState(false);
@@ -162,6 +177,8 @@ function Index() {
         <WebRipple key={r.id} x={r.x} y={r.y} />
       ))}
 
+      {(stage === "tease" || stage === "date") && <TapCue hidden={ripples.length > 0} />}
+
       {(stage === "date" || stage === "venue") && (
         <button
           type="button"
@@ -172,7 +189,7 @@ function Index() {
             if (busy.current) return;
             setStage(stage === "venue" ? "date" : "tease");
           }}
-          className="absolute left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full text-[1.9rem] leading-none font-light text-foreground/55 transition-colors active:text-foreground/90"
+          className="animate-arrow-hint absolute left-3 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 bg-foreground/[0.04] text-[2.3rem] leading-none font-light text-foreground/80 backdrop-blur-[2px] transition-colors active:border-foreground/20 active:text-foreground"
           style={{ top: "max(env(safe-area-inset-top), 0.75rem)" }}
         >
           ‹
