@@ -183,6 +183,43 @@
   }
 }
 
+@keyframes arrow-hint {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(-3px);
+    opacity: 1;
+  }
+}
+
+@keyframes tap-cue-ring {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.5;
+  }
+  75% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes tap-cue-dot {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 @keyframes thread-breathe {
   0%,
   100% {
@@ -229,6 +266,18 @@
 
 @utility animate-thread-breathe {
   animation: thread-breathe 2.6s ease-in-out infinite;
+}
+
+@utility animate-arrow-hint {
+  animation: arrow-hint 2.8s ease-in-out infinite;
+}
+
+@utility animate-tap-cue-ring {
+  animation: tap-cue-ring 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@utility animate-tap-cue-dot {
+  animation: tap-cue-dot 2.6s ease-in-out infinite;
 }
 
 @utility animate-drift-x {
