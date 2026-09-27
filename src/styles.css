@@ -274,6 +274,10 @@
   animation: arrow-hint 2.8s ease-in-out infinite;
 }
 
+@utility animate-arrow-hint-right {
+  animation: arrow-hint-right 2.8s ease-in-out infinite;
+}
+
 @utility animate-web-touch-hint {
   transform-origin: 50% 44%;
   animation: web-touch-hint 4.8s ease-in-out 1.1s infinite;
