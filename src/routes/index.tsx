@@ -74,11 +74,11 @@ function WebRipple({ x, y }: { x: number; y: number }) {
   );
 }
 
-function TapCue() {
+function TapCue({ hidden }: { hidden: boolean }) {
   return (
     <div
       className={`animate-fade-in pointer-events-none absolute inset-x-0 bottom-[4.5svh] z-10 flex justify-center transition-opacity duration-300 ${
-        ripples.length ? "opacity-0" : "opacity-100"
+        hidden ? "opacity-0" : "opacity-100"
       }`}
     >
       <span className="relative flex h-11 w-11 items-center justify-center">
@@ -177,7 +177,7 @@ function Index() {
         <WebRipple key={r.id} x={r.x} y={r.y} />
       ))}
 
-      {(stage === "tease" || stage === "date") && <TapCue />}
+      {(stage === "tease" || stage === "date") && <TapCue hidden={ripples.length > 0} />}
 
       {(stage === "date" || stage === "venue") && (
         <button
