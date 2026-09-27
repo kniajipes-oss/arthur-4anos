@@ -74,21 +74,6 @@ function WebRipple({ x, y }: { x: number; y: number }) {
   );
 }
 
-function TapCue({ hidden }: { hidden: boolean }) {
-  return (
-    <div
-      className={`animate-fade-in pointer-events-none absolute inset-x-0 bottom-[4.5svh] z-10 flex justify-center transition-opacity duration-300 ${
-        hidden ? "opacity-0" : "opacity-100"
-      }`}
-    >
-      <span className="relative flex h-11 w-11 items-center justify-center">
-        <span className="animate-tap-cue-ring absolute inset-0 rounded-full border border-web-red/45" />
-        <span className="animate-tap-cue-dot h-1.5 w-1.5 rounded-full bg-web-red-bright" />
-      </span>
-    </div>
-  );
-}
-
 function Index() {
   const [started, setStarted] = useState(false);
   const [showText, setShowText] = useState(false);
@@ -168,7 +153,7 @@ function Index() {
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
           dim ? "opacity-55" : "opacity-100"
-        }`}
+        } ${stage === "tease" || stage === "date" ? "animate-web-touch-hint" : ""}`}
       >
         <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
       </div>
@@ -176,8 +161,6 @@ function Index() {
       {ripples.map((r) => (
         <WebRipple key={r.id} x={r.x} y={r.y} />
       ))}
-
-      {(stage === "tease" || stage === "date") && <TapCue hidden={ripples.length > 0} />}
 
       {(stage === "date" || stage === "venue") && (
         <button

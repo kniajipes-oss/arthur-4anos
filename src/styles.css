@@ -195,28 +195,18 @@
   }
 }
 
-@keyframes tap-cue-ring {
-  0% {
-    transform: scale(0.35);
-    opacity: 0.5;
-  }
-  75% {
-    transform: scale(1);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-@keyframes tap-cue-dot {
+@keyframes web-touch-hint {
   0%,
+  44%,
+  62%,
   100% {
-    opacity: 0.45;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.9;
+    transform: scale(1.014, 1.02);
+  }
+  56% {
+    transform: scale(0.998, 0.996);
   }
 }
 
@@ -272,12 +262,9 @@
   animation: arrow-hint 2.8s ease-in-out infinite;
 }
 
-@utility animate-tap-cue-ring {
-  animation: tap-cue-ring 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-}
-
-@utility animate-tap-cue-dot {
-  animation: tap-cue-dot 2.6s ease-in-out infinite;
+@utility animate-web-touch-hint {
+  transform-origin: 50% 44%;
+  animation: web-touch-hint 4.8s ease-in-out 1.1s infinite;
 }
 
 @utility animate-drift-x {
