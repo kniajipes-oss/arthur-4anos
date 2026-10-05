@@ -172,10 +172,10 @@ function Index() {
             if (busy.current) return;
             setStage(stage === "venue" ? "date" : "tease");
           }}
-          className="animate-arrow-hint absolute left-3 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 bg-foreground/[0.04] text-[2.3rem] leading-none font-light text-foreground/80 backdrop-blur-[2px] transition-colors active:border-foreground/20 active:text-foreground"
-          style={{ top: "max(env(safe-area-inset-top), 0.75rem)" }}
+          className="animate-hint-pulse absolute left-0 z-20 flex items-center p-4 text-foreground/60 transition-colors active:text-foreground"
+          style={{ top: "max(env(safe-area-inset-top), 0.6rem)" }}
         >
-          ‹
+          <span className="text-[0.62rem] font-light uppercase tracking-[0.3em]">← VOLTAR</span>
         </button>
       )}
 
@@ -193,10 +193,10 @@ function Index() {
               stage === "tease" ? "date" : "venue",
             );
           }}
-          className="animate-arrow-hint-right absolute right-3 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 bg-foreground/[0.04] text-[2.3rem] leading-none font-light text-foreground/80 backdrop-blur-[2px] transition-colors active:border-foreground/20 active:text-foreground"
-          style={{ bottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+          className="animate-hint-pulse absolute right-0 z-20 flex items-center p-4 text-foreground/60 transition-colors active:text-foreground"
+          style={{ bottom: "max(env(safe-area-inset-bottom), 0.6rem)" }}
         >
-          ›
+          <span className="text-[0.62rem] font-light uppercase tracking-[0.3em]">PRÓXIMO →</span>
         </button>
       )}
 
