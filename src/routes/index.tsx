@@ -334,6 +334,24 @@ function Index() {
           </p>
         </div>
       )}
+
+      {stage === "confirmed" && (
+        <button
+          type="button"
+          aria-label="Ver convite novamente"
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onClick={() => {
+            setStarted(false);
+            setShowText(false);
+            setStage("idle");
+          }}
+          className="animate-hint-pulse absolute inset-x-0 z-20 flex justify-center p-4 text-foreground/60 transition-colors active:text-foreground"
+          style={{ bottom: "max(env(safe-area-inset-bottom), 0.6rem)" }}
+        >
+          <span className="text-[0.62rem] font-light uppercase tracking-[0.3em]">← VER CONVITE NOVAMENTE</span>
+        </button>
+      )}
     </main>
   );
 }
