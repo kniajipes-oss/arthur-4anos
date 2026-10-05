@@ -59,8 +59,13 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
     };
 
     const draw = (now: number) => {
+      if (!running) {
+        start = 0;
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       if (!start) start = now;
-      const t = running ? now - start : 0;
+      const t = now - start;
       const cx = w / 2;
       const cy = h * 0.44;
       const R = Math.min(w * 0.44, h * 0.3);
@@ -71,6 +76,8 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
         return;
       }
 
+      // opening only: main threads slightly thicker/more defined, easing back after the opening
+      const openBoost = heart ? 1 : 1 + 0.45 * (1 - clamp01((t - T.end) / 700));
       const webFadeK = 1 - clamp01((t - T.webFade) / 520) * (heart ? 0.55 : 0.38);
 
       // 1. Descending thread
@@ -154,17 +161,17 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
             const kY = cy + u * ky + sway;
             const mx = (cx + ex) / 2;
             const my = (cy + ey) / 2;
-            ctx.globalAlpha = Math.max(0.72 * webFadeK, 0.85 * m);
+            ctx.globalAlpha = Math.min(1, Math.max(0.72 * webFadeK, 0.85 * m) * openBoost);
             ctx.strokeStyle = s % 3 === 0 ? RED : s === 4 || s === 8 ? RED_DIM : "rgba(255,255,255,0.72)";
-            ctx.lineWidth = mix(0.7, 1.1, m);
+            ctx.lineWidth = mix(0.7, 1.1, m) * openBoost;
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.quadraticCurveTo(mix(mx, kX, m), mix(my, kY, m), mix(ex, fX, m), mix(ey, fY, m));
             ctx.stroke();
           } else {
-            ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9);
+            ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9) * (s % 3 === 0 ? openBoost : 1);
             ctx.strokeStyle = s % 3 === 0 ? RED : s % 3 === 1 ? RED_DIM : "rgba(255,255,255,0.42)";
-            ctx.lineWidth = s % 3 === 0 ? 1.05 : 0.55;
+            ctx.lineWidth = s % 3 === 0 ? 1.05 * openBoost : 0.55;
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.lineTo(mix(ex, cx, m * 0.7), mix(ey, cy, m * 0.7));
@@ -188,10 +195,10 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
           const rp = clamp01((wp - 0.2 - r * 0.06) / 0.26);
           if (rp <= 0) continue;
           const count = Math.floor(SPOKES * easeInOut(rp));
-          ctx.globalAlpha = (r === RINGS - 1 ? 0.6 : 0.78) * webFadeK * (1 - m);
+          ctx.globalAlpha = Math.min(1, (r === RINGS - 1 ? 0.6 : 0.78) * webFadeK * (1 - m) * openBoost);
           if (ctx.globalAlpha <= 0.002) continue;
           ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : "rgba(214,224,245,0.5)";
-          ctx.lineWidth = 0.85;
+          ctx.lineWidth = 0.85 * openBoost;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
             const a = pts[s]![r]!;
