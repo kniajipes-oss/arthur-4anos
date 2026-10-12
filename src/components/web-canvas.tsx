@@ -20,7 +20,15 @@ function cssColor(el: HTMLElement, name: string) {
   return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
-export function WebCanvas({ running, heart = false }: { running: boolean; heart?: boolean }) {
+export function WebCanvas({
+  running,
+  heart = false,
+  bgSpider = false,
+}: {
+  running: boolean;
+  heart?: boolean;
+  bgSpider?: boolean;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
