@@ -309,7 +309,8 @@ export function WebCanvas({
       // opening spider, kept subtle but clearly recognizable on small screens
       if (bgSpider && !heart && t > T.end) {
         const fade = clamp01((t - T.end) / 800);
-        const a = 0.55 * fade;
+        const a = 0.72 * fade;
+        const ub = R * 0.42; // larger than the opening spider: readable on small screens
         ctx.save();
         ctx.translate(cx, cy);
         ctx.lineJoin = "round";
@@ -319,35 +320,35 @@ export function WebCanvas({
           const s = Number(key);
           const [side, kx, ky, fx, fy] = LEG[s]!;
           ctx.globalAlpha = a;
-          ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(214,224,245,0.62)";
-          ctx.lineWidth = 1.15;
+          ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(214,224,245,0.7)";
+          ctx.lineWidth = 1.3;
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(side * u * kx, u * ky, side * u * fx, u * fy);
+          ctx.quadraticCurveTo(side * ub * kx, ub * ky, side * ub * fx, ub * fy);
           ctx.stroke();
         }
 
         ctx.globalAlpha = Math.min(1, a * 1.2);
-        ctx.strokeStyle = "rgba(230,238,252,0.72)";
-        ctx.lineWidth = 1.25;
+        ctx.strokeStyle = "rgba(230,238,252,0.8)";
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.ellipse(0, u * 0.55, u * 0.42, u * 0.78, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, ub * 0.55, ub * 0.42, ub * 0.78, 0, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.strokeStyle = RED_DIM;
-        ctx.lineWidth = 1.1;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.ellipse(0, -u * 0.55, u * 0.3, u * 0.42, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -ub * 0.55, ub * 0.3, ub * 0.42, 0, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.fillStyle = RED;
         for (const dx of [-1, 1]) {
           ctx.beginPath();
-          ctx.arc(dx * u * 0.14, -u * 0.68, 1.4, 0, Math.PI * 2);
+          ctx.arc(dx * ub * 0.14, -ub * 0.68, 1.6, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.beginPath();
-        ctx.arc(0, u * 0.55, 1.7, 0, Math.PI * 2);
+        ctx.arc(0, ub * 0.55, 1.9, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
