@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Convite interativo do aniversário de 4 anos do Arthur: 19 de dezembro de 2026, sábado, 12h, Molecada Kids.",
+          "Convite interativo do aniversário de 4 anos do Arthur: 19 de dezembro de 2026, sábado, 12h, em BH.",
       },
       { property: "og:title", content: "Arthur faz 4 — Convite" },
       {
@@ -285,13 +285,7 @@ function Index() {
 
           <div className="flex flex-col items-center">
             <p
-              className="animate-reveal-up font-display text-[clamp(1.4rem,7vw,2rem)] font-bold tracking-[0.06em] text-foreground"
-              style={{ animationDelay: "120ms" }}
-            >
-              MOLECADA KIDS
-            </p>
-            <p
-              className="animate-reveal-up mt-4 text-[1rem] leading-relaxed text-foreground/80"
+              className="animate-reveal-up mt-1 text-[1rem] leading-relaxed text-foreground/80"
               style={{ animationDelay: "200ms" }}
             >
               Rua Flor das Cobras, 226
