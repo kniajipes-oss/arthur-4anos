@@ -363,7 +363,7 @@ export function WebCanvas({
       window.removeEventListener("resize", resize);
       void withAlpha;
     };
-  }, [running, heart]);
+  }, [running, heart, bgSpider]);
 
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }

@@ -163,7 +163,12 @@ function Index() {
           dim ? "opacity-55" : "opacity-100"
         } ${stage === "tease" || stage === "date" ? "animate-web-touch-hint" : ""}`}
       >
-        <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
+<WebCanvas
+          key={stage === "confirmed" ? "end" : "open"}
+          running={started}
+          heart={stage === "confirmed"}
+          bgSpider={dim}
+        />
       </div>
 
       {ripples.map((r) => (
