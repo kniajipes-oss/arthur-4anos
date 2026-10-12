@@ -30,7 +30,15 @@ export const Route = createFileRoute("/")({
         content: "Toque para lançar a teia. Arthur faz 4! Sábado, 19/12, 12h.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      {
+        property: "og:image",
+        content: "https://arthur-4anos.lovable.app/og.jpg",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:image",
+        content: "https://arthur-4anos.lovable.app/og.jpg",
+      },
     ],
   }),
   component: Index,
