@@ -20,15 +20,7 @@ function cssColor(el: HTMLElement, name: string) {
   return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
-export function WebCanvas({
-  running,
-  heart = false,
-  bgSpider = false,
-}: {
-  running: boolean;
-  heart?: boolean;
-  bgSpider?: boolean;
-}) {
+export function WebCanvas({ running, heart = false }: { running: boolean; heart?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -305,56 +297,6 @@ export function WebCanvas({
         ctx.shadowBlur = 0;
       }
 
-      // 4. Persistent background spider (date/venue screens): same drawing as the
-      // opening spider, kept subtle but clearly recognizable on small screens
-      if (bgSpider && !heart && t > T.end) {
-        const fade = clamp01((t - T.end) / 800);
-        const a = 0.72 * fade;
-        const ub = R * 0.42; // larger than the opening spider: readable on small screens
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-
-        for (const key of Object.keys(LEG)) {
-          const s = Number(key);
-          const [side, kx, ky, fx, fy] = LEG[s]!;
-          ctx.globalAlpha = a;
-          ctx.strokeStyle = s % 3 === 0 ? RED_DIM : "rgba(214,224,245,0.7)";
-          ctx.lineWidth = 1.3;
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(side * ub * kx, ub * ky, side * ub * fx, ub * fy);
-          ctx.stroke();
-        }
-
-        ctx.globalAlpha = Math.min(1, a * 1.2);
-        ctx.strokeStyle = "rgba(230,238,252,0.8)";
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.ellipse(0, ub * 0.55, ub * 0.42, ub * 0.78, 0, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = RED_DIM;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.ellipse(0, -ub * 0.55, ub * 0.3, ub * 0.42, 0, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = RED;
-        for (const dx of [-1, 1]) {
-          ctx.beginPath();
-          ctx.arc(dx * ub * 0.14, -ub * 0.68, 1.6, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.beginPath();
-        ctx.arc(0, ub * 0.55, 1.9, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-        ctx.globalAlpha = 1;
-      }
-
       raf = requestAnimationFrame(draw);
     };
 
@@ -364,7 +306,7 @@ export function WebCanvas({
       window.removeEventListener("resize", resize);
       void withAlpha;
     };
-  }, [running, heart, bgSpider]);
+  }, [running, heart]);
 
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
