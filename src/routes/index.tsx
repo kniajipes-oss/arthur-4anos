@@ -160,15 +160,10 @@ function Index() {
 
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-          dim ? "opacity-55" : "opacity-100"
+          dim ? "opacity-85" : "opacity-100"
         } ${stage === "tease" || stage === "date" ? "animate-web-touch-hint" : ""}`}
       >
-<WebCanvas
-          key={stage === "confirmed" ? "end" : "open"}
-          running={started}
-          heart={stage === "confirmed"}
-          bgSpider={dim}
-        />
+<WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
       </div>
 
       {ripples.map((r) => (

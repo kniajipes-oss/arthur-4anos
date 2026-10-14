@@ -20,15 +20,7 @@ function cssColor(el: HTMLElement, name: string) {
   return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
-export function WebCanvas({
-  running,
-  heart = false,
-  bgSpider = false,
-}: {
-  running: boolean;
-  heart?: boolean;
-  bgSpider?: boolean;
-}) {
+export function WebCanvas({ running, heart = false }: { running: boolean; heart?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -314,7 +306,7 @@ export function WebCanvas({
       window.removeEventListener("resize", resize);
       void withAlpha;
     };
-  }, [running, heart, bgSpider]);
+  }, [running, heart]);
 
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
