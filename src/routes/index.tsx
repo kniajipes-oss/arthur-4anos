@@ -141,7 +141,8 @@ function Index() {
 
   const confirm = (e: React.MouseEvent) => {
     // only a deliberate tap that started on the button itself, after the screen settled
-    if (!confirmArmed.current || Date.now() - venueAt.current < 700) return;
+    const keyboard = e.detail === 0;
+    if ((!confirmArmed.current && !keyboard) || Date.now() - venueAt.current < 700) return;
     confirmArmed.current = false;
     advance(e.clientX, e.clientY, "confirmed");
     window.open(
