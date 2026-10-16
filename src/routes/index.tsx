@@ -96,6 +96,12 @@ function Index() {
   const [stage, setStage] = useState<Stage>("idle");
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const busy = useRef(false);
+  const venueAt = useRef(0);
+  const confirmArmed = useRef(false);
+  useEffect(() => {
+    if (stage === "venue") venueAt.current = Date.now();
+    confirmArmed.current = false;
+  }, [stage]);
 
   const start = useCallback(() => {
     if (started) return;
@@ -134,6 +140,10 @@ function Index() {
   };
 
   const confirm = (e: React.MouseEvent) => {
+    // only a deliberate tap that started on the button itself, after the screen settled
+    const keyboard = e.detail === 0;
+    if ((!confirmArmed.current && !keyboard) || Date.now() - venueAt.current < 700) return;
+    confirmArmed.current = false;
     advance(e.clientX, e.clientY, "confirmed");
     window.open(
       `https://wa.me/${whatsappDestino()}?text=${encodeURIComponent(CONFIRM_MESSAGE)}`,
@@ -218,7 +228,7 @@ function Index() {
 
       {!started && (
         <div className="absolute inset-x-0 top-[8%] flex flex-col items-center px-8">
-          <span className="animate-thread-breathe h-[22svh] w-px bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
+          <span className="animate-thread-breathe h-[22svh] w-[1.5px] bg-gradient-to-b from-transparent via-web-red/60 to-web-red-bright" />
           <span className="animate-hint-pulse mt-6 text-center text-[0.68rem] font-light tracking-[0.38em] text-foreground/75 uppercase">
             Toque para lançar a teia
           </span>
@@ -319,7 +329,10 @@ function Index() {
 
           <button
             onClick={confirm}
-            onPointerDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              confirmArmed.current = true;
+            }}
             style={{ animationDelay: "380ms" }}
             className="animate-reveal-up group relative w-full max-w-[16.5rem] overflow-hidden rounded-full border border-web-red/55 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--web-red)_18%,transparent),color-mix(in_oklab,var(--web-blue)_22%,transparent))] px-7 py-4 text-[0.72rem] font-light tracking-[0.3em] text-foreground/95 uppercase shadow-[0_0_20px_color-mix(in_oklab,var(--web-red)_20%,transparent)] transition-all active:scale-[0.97]"
           >

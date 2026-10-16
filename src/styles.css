@@ -225,10 +225,12 @@
 @keyframes thread-breathe {
   0%,
   100% {
-    opacity: 0.55;
+    opacity: 0.35;
+    filter: brightness(0.85);
   }
   50% {
-    opacity: 0.95;
+    opacity: 1;
+    filter: brightness(1.35) drop-shadow(0 0 3px var(--web-red-bright));
   }
 }
 
@@ -267,7 +269,7 @@
 }
 
 @utility animate-thread-breathe {
-  animation: thread-breathe 2.6s ease-in-out infinite;
+  animation: thread-breathe 2.1s ease-in-out infinite;
 }
 
 @utility animate-arrow-hint {
