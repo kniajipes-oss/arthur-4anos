@@ -121,9 +121,40 @@ function Index() {
     return () => window.clearTimeout(id);
   }, [showText, stage]);
 
+  // Each inner screen gets its own browser-history entry, so the phone's native
+  // back gesture moves to the previous screen instead of leaving the invite.
+  const resetting = useRef(false);
+  const resetInvite = useCallback(() => {
+    setStarted(false);
+    setShowText(false);
+    setStage("idle");
+  }, []);
+
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => {
+      confirmArmed.current = false;
+      if (resetting.current) {
+        resetting.current = false;
+        resetInvite();
+        return;
+      }
+      const s = (e.state as { inviteStage?: Stage } | null)?.inviteStage;
+      setRipples([]);
+      busy.current = false;
+      setStage(s ?? "tease");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [resetInvite]);
+
   const advance = (x: number, y: number, next: Stage) => {
     if (busy.current) return;
     busy.current = true;
+    const depth = ((window.history.state as { inviteDepth?: number } | null)?.inviteDepth ?? 0) + 1;
+    window.history.pushState(
+      { ...(window.history.state ?? {}), inviteStage: next, inviteDepth: depth },
+      "",
+    );
     const id = Date.now();
     setRipples((r) => [...r, { id, x, y }]);
     window.setTimeout(() => setStage(next), 420);
@@ -133,16 +164,25 @@ function Index() {
     }, 950);
   };
 
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (stage === "idle") return start();
-    if (stage === "tease") return advance(e.clientX, e.clientY, "date");
-    if (stage === "date") return advance(e.clientX, e.clientY, "venue");
+  const goBack = () => {
+    if (busy.current) return;
+    const s = window.history.state as { inviteStage?: Stage } | null;
+    if (s?.inviteStage) window.history.back();
+    else setStage(stage === "venue" ? "date" : "tease");
+  };
+
+  const restart = () => {
+    const d = (window.history.state as { inviteDepth?: number } | null)?.inviteDepth ?? 0;
+    if (d > 0) {
+      resetting.current = true;
+      window.history.go(-d);
+    } else resetInvite();
   };
 
   const confirm = (e: React.MouseEvent) => {
-    // only a deliberate tap that started on the button itself, after the screen settled
-    const keyboard = e.detail === 0;
-    if ((!confirmArmed.current && !keyboard) || Date.now() - venueAt.current < 700) return;
+    // only a deliberate tap/keypress that started on the button itself, after the screen settled
+    if (!e.isTrusted || !confirmArmed.current || Date.now() - venueAt.current < 700) return;
+    if (stage !== "venue") return;
     confirmArmed.current = false;
     advance(e.clientX, e.clientY, "confirmed");
     window.open(
