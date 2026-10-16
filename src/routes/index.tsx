@@ -234,10 +234,7 @@ function Index() {
           aria-label="Voltar"
           onPointerDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
-          onClick={() => {
-            if (busy.current) return;
-            setStage(stage === "venue" ? "date" : "tease");
-          }}
+          onClick={goBack}
           className="animate-hint-pulse absolute left-0 z-20 flex items-center p-4 text-foreground/60 transition-colors active:text-foreground"
           style={{ top: "max(env(safe-area-inset-top), 0.6rem)" }}
         >
@@ -373,6 +370,13 @@ function Index() {
               e.stopPropagation();
               confirmArmed.current = true;
             }}
+            onPointerCancel={() => {
+              confirmArmed.current = false;
+            }}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Enter" || e.key === " ") confirmArmed.current = true;
+            }}
             style={{ animationDelay: "380ms" }}
             className="animate-reveal-up group relative w-full max-w-[16.5rem] overflow-hidden rounded-full border border-web-red/55 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--web-red)_18%,transparent),color-mix(in_oklab,var(--web-blue)_22%,transparent))] px-7 py-4 text-[0.72rem] font-light tracking-[0.3em] text-foreground/95 uppercase shadow-[0_0_20px_color-mix(in_oklab,var(--web-red)_20%,transparent)] transition-all active:scale-[0.97]"
           >
@@ -404,11 +408,7 @@ function Index() {
           aria-label="Ver convite novamente"
           onPointerDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
-          onClick={() => {
-            setStarted(false);
-            setShowText(false);
-            setStage("idle");
-          }}
+          onClick={restart}
           className="animate-hint-pulse absolute inset-x-0 z-20 flex justify-center p-4 text-foreground/60 transition-colors active:text-foreground"
           style={{ bottom: "max(env(safe-area-inset-bottom), 0.6rem)" }}
         >
