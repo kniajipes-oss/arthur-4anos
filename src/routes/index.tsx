@@ -179,6 +179,12 @@ function Index() {
     } else resetInvite();
   };
 
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (stage === "idle") return start();
+    if (stage === "tease") return advance(e.clientX, e.clientY, "date");
+    if (stage === "date") return advance(e.clientX, e.clientY, "venue");
+  };
+
   const confirm = (e: React.MouseEvent) => {
     // only a deliberate tap/keypress that started on the button itself, after the screen settled
     if (!e.isTrusted || !confirmArmed.current || Date.now() - venueAt.current < 700) return;
