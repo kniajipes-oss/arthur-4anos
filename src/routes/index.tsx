@@ -8,7 +8,7 @@ const WHATSAPP_LUCIANO = "5531985060034";
 // Links com ?de=luciano enviam para o Luciano.
 const WHATSAPP_DESTINO = WHATSAPP_KENIA;
 const CONFIRM_MESSAGE =
-  "Oi! Recebi o convite do aniversário do Arthur e quero confirmar minha presença. ❤️";
+  "Olá! Confirmo minha presença no aniversário do Arthurzinho! ❤️🎉";
 
 function whatsappDestino() {
   const de = new URLSearchParams(window.location.search).get("de")?.toLowerCase();
