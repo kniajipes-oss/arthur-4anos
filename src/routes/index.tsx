@@ -338,7 +338,7 @@ function Index() {
               className="animate-reveal-up mt-8 text-[0.85rem] font-medium tracking-[0.34em] text-web-red-bright uppercase"
               style={{ animationDelay: "400ms" }}
             >
-              Sábado • 12h00
+              Sábado • 12h
             </p>
           </div>
         </>
@@ -366,7 +366,7 @@ function Index() {
               className="animate-reveal-up text-[0.8rem] font-medium tracking-[0.3em] text-web-red-bright uppercase"
               style={{ animationDelay: "280ms" }}
             >
-              19 de dezembro • 12h00
+              19 de dezembro • 12h
             </p>
           </div>
 
