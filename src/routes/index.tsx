@@ -262,8 +262,8 @@ function Index() {
               stage === "tease" ? "date" : "venue",
             );
           }}
-          className="animate-hint-pulse absolute right-0 z-20 flex items-center p-4 text-foreground/60 transition-colors active:text-foreground"
-          style={{ bottom: "max(env(safe-area-inset-bottom), 0.6rem)" }}
+          className="animate-hint-pulse absolute right-4 z-20 flex items-center p-4 text-foreground/75 transition-colors active:text-foreground"
+          style={{ bottom: "max(env(safe-area-inset-bottom), 1.5rem)" }}
         >
           <span className="text-[0.62rem] font-light uppercase tracking-[0.3em]">PRÓXIMO →</span>
         </button>
