@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Analisar e adicionar luminosidade breve nos fios existentes durante transições, sem alterar a abertura ou confirmação.
+- [ ] Verificar transições e fluxo no celular.
+
 - [ ] Corrigir e verificar os riscos deslocados durante as transições no celular.
 
 - [x] Desfazer a aranha de fundo (remover bloco bgSpider do canvas e prop no index)
