@@ -94,6 +94,15 @@ function Index() {
   const [started, setStarted] = useState(false);
   const [showText, setShowText] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
+  const [transitionPulse, setTransitionPulse] = useState(0);
+  const previousStage = useRef<Stage>("idle");
+  useEffect(() => {
+    const innerStages: Stage[] = ["tease", "date", "venue"];
+    if (previousStage.current !== stage && innerStages.includes(previousStage.current) && innerStages.includes(stage)) {
+      setTransitionPulse((pulse) => pulse + 1);
+    }
+    previousStage.current = stage;
+  }, [stage]);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const busy = useRef(false);
   const venueAt = useRef(0);
@@ -227,7 +236,7 @@ function Index() {
           dim ? "opacity-85" : "opacity-100"
         } ${stage === "tease" || stage === "date" ? "animate-web-touch-hint" : ""}`}
       >
-<WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} />
+<WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} transitionPulse={stage === "tease" || stage === "date" || stage === "venue" ? transitionPulse : 0} />
       </div>
 
       {ripples.map((r) => (
