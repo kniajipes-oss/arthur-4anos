@@ -1,6 +1,9 @@
 # Roadmap
 
-- [ ] Corrigir e verificar os riscos deslocados durante as transições no celular.
+- [x] Analisar e adicionar luminosidade breve nos fios existentes durante transições, sem alterar a abertura ou confirmação.
+- [x] Verificar transições e fluxo no celular.
+
+- [x] Corrigir e verificar os riscos deslocados durante as transições no celular.
 
 - [x] Desfazer a aranha de fundo (remover bloco bgSpider do canvas e prop no index)
 - [x] Aumentar moderadamente visibilidade/contraste da teia nas telas date/venue (sem novo desenho)

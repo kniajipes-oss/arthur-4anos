@@ -20,8 +20,15 @@ function cssColor(el: HTMLElement, name: string) {
   return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
-export function WebCanvas({ running, heart = false }: { running: boolean; heart?: boolean }) {
+export function WebCanvas({ running, heart = false, transitionPulse = 0 }: { running: boolean; heart?: boolean; transitionPulse?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const pulseAt = useRef<number | null>(null);
+
+  // A visual-only signal: never restart the existing canvas animation clock.
+  useEffect(() => {
+    if (!transitionPulse || heart || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    pulseAt.current = performance.now();
+  }, [transitionPulse, heart]);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -79,6 +86,8 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
       // opening only: main threads slightly thicker/more defined, easing back after the opening
       const openBoost = heart ? 1 : 1 + 0.45 * (1 - clamp01((t - T.end) / 700));
       const webFadeK = 1 - clamp01((t - T.webFade) / 520) * (heart ? 0.55 : 0.38);
+      const pulseProgress = pulseAt.current === null ? 1 : clamp01((now - pulseAt.current) / 520);
+      const pulseAlpha = heart ? 0 : Math.sin(Math.PI * pulseProgress) * 0.3;
 
       // 1. Descending thread
       if (t > T.hold) {
@@ -176,6 +185,23 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
             ctx.moveTo(cx, cy);
             ctx.lineTo(mix(ex, cx, m * 0.7), mix(ey, cy, m * 0.7));
             ctx.stroke();
+            // Restroke the exact same path and width. Only its local luminosity
+            // changes; no new threads, dots, shadows or geometry are introduced.
+            if (pulseAlpha > 0.001 && m < 0.001 && wp >= 1 && (s === 0 || s === 3 || s === 9)) {
+              const center = -0.22 + pulseProgress * 1.44;
+              const glow = ctx.createLinearGradient(cx, cy, ex, ey);
+              const transparentRed = "color-mix(in oklab, " + RED + " 0%, transparent)";
+              glow.addColorStop(0, transparentRed);
+              glow.addColorStop(clamp01(center - 0.22), transparentRed);
+              glow.addColorStop(clamp01(center), RED);
+              glow.addColorStop(clamp01(center + 0.22), transparentRed);
+              glow.addColorStop(1, transparentRed);
+              ctx.save();
+              ctx.globalAlpha = pulseAlpha;
+              ctx.strokeStyle = glow;
+              ctx.stroke();
+              ctx.restore();
+            }
           }
 
           // travelling head of the thread
@@ -201,8 +227,9 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
           ctx.lineWidth = 0.85 * openBoost;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
-            const a = pts[s]![r]!;
-            const b = pts[(s + 1) % SPOKES]![r]!;
+            const a = pts[s]?.[r];
+            const b = pts[(s + 1) % SPOKES]?.[r];
+            if (!a || !b) continue;
             const mx = (a[0] + b[0]) / 2;
             const my = (a[1] + b[1]) / 2;
             const qx = mx + (cx - mx) * 0.12;
@@ -217,7 +244,8 @@ export function WebCanvas({ running, heart = false }: { running: boolean; heart?
         ctx.globalAlpha = 0.9 * webFadeK * clamp01((wp - 0.5) / 0.4) * (1 - m);
         ctx.fillStyle = BLUE;
         for (let s = 0; s < SPOKES; s += 5) {
-          const p = pts[s]![2]!;
+          const p = pts[s]?.[2];
+          if (!p) continue;
           ctx.beginPath();
           ctx.arc(p[0], p[1], 1.6, 0, Math.PI * 2);
           ctx.fill();
