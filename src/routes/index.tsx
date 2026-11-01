@@ -233,7 +233,7 @@ function Index() {
 
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-          dim ? "opacity-85" : "opacity-100"
+          "opacity-100"
         } ${stage === "tease" || stage === "date" ? "animate-web-touch-hint" : ""}`}
       >
 <WebCanvas key={stage === "confirmed" ? "end" : "open"} running={started} heart={stage === "confirmed"} transitionPulse={stage === "tease" || stage === "date" || stage === "venue" ? transitionPulse : 0} />
@@ -393,7 +393,7 @@ function Index() {
               if (e.key === "Enter" || e.key === " ") confirmArmed.current = true;
             }}
             style={{ animationDelay: "380ms" }}
-            className="animate-reveal-up group relative w-full max-w-[16.5rem] overflow-hidden rounded-full border border-web-red/55 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--web-red)_18%,transparent),color-mix(in_oklab,var(--web-blue)_22%,transparent))] px-7 py-4 text-[0.72rem] font-light tracking-[0.3em] text-foreground/95 uppercase shadow-[0_0_20px_color-mix(in_oklab,var(--web-red)_20%,transparent)] transition-all active:scale-[0.97]"
+            className="animate-reveal-up group relative w-full max-w-[16.5rem] overflow-hidden rounded-full border border-web-red-bright/90 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--web-red)_78%,transparent),color-mix(in_oklab,var(--web-red-bright)_62%,transparent))] px-7 py-4 text-[0.74rem] font-medium tracking-[0.3em] text-foreground uppercase shadow-[0_0_24px_color-mix(in_oklab,var(--web-red)_40%,transparent)] transition-all active:scale-[0.97]"
           >
             Confirmar presença
           </button>
