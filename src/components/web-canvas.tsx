@@ -85,7 +85,10 @@ export function WebCanvas({ running, heart = false, transitionPulse = 0 }: { run
 
       // opening only: main threads slightly thicker/more defined, easing back after the opening
       const openBoost = heart ? 1 : 1 + 0.45 * (1 - clamp01((t - T.end) / 700));
-      const webFadeK = 1 - clamp01((t - T.webFade) / 520) * (heart ? 0.55 : 0.38);
+      const settled = clamp01((t - T.webFade) / 520);
+      // after the opening the web settles a little dimmer, but stays clearly visible on phones
+      const webFadeK = 1 - settled * (heart ? 0.3 : 0.08);
+      const afterK = 1 + settled * 0.35;
       const pulseProgress = pulseAt.current === null ? 1 : clamp01((now - pulseAt.current) / 520);
       const pulseAlpha = heart ? 0 : Math.sin(Math.PI * pulseProgress) * 0.3;
 
@@ -178,9 +181,9 @@ export function WebCanvas({ running, heart = false, transitionPulse = 0 }: { run
             ctx.quadraticCurveTo(mix(mx, kX, m), mix(my, kY, m), mix(ex, fX, m), mix(ey, fY, m));
             ctx.stroke();
           } else {
-            ctx.globalAlpha = 0.72 * webFadeK * (1 - m * 0.9) * (s % 3 === 0 ? openBoost : 1);
-            ctx.strokeStyle = s % 3 === 0 ? RED : s % 3 === 1 ? RED_DIM : "rgba(255,255,255,0.42)";
-            ctx.lineWidth = s % 3 === 0 ? 1.05 * openBoost : 0.55;
+            ctx.globalAlpha = Math.min(1, 0.72 * webFadeK * afterK * (1 - m * 0.9) * (s % 3 === 0 ? openBoost : 1));
+            ctx.strokeStyle = s % 3 === 0 ? RED : s % 3 === 1 ? RED_DIM : `rgba(255,255,255,${0.42 + settled * 0.2})`;
+            ctx.lineWidth = s % 3 === 0 ? 1.05 * openBoost + settled * 0.2 : 0.55 + settled * 0.15;
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.lineTo(mix(ex, cx, m * 0.7), mix(ey, cy, m * 0.7));
@@ -221,10 +224,10 @@ export function WebCanvas({ running, heart = false, transitionPulse = 0 }: { run
           const rp = clamp01((wp - 0.2 - r * 0.06) / 0.26);
           if (rp <= 0) continue;
           const count = Math.floor(SPOKES * easeInOut(rp));
-          ctx.globalAlpha = Math.min(1, (r === RINGS - 1 ? 0.6 : 0.78) * webFadeK * (1 - m) * openBoost);
+          ctx.globalAlpha = Math.min(1, (r === RINGS - 1 ? 0.6 : 0.78) * webFadeK * afterK * (1 - m) * openBoost);
           if (ctx.globalAlpha <= 0.002) continue;
-          ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : "rgba(214,224,245,0.5)";
-          ctx.lineWidth = 0.85 * openBoost;
+          ctx.strokeStyle = r === 1 || r === 3 ? RED_DIM : `rgba(214,224,245,${0.5 + settled * 0.2})`;
+          ctx.lineWidth = 0.85 * openBoost + settled * 0.15;
           ctx.beginPath();
           for (let s = 0; s < count; s++) {
             const a = pts[s]?.[r];
